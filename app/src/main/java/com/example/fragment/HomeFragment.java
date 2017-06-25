@@ -1,15 +1,18 @@
 package com.example.fragment;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.adapter.FragmentAdapter;
 import com.example.jokeeassy.R;
@@ -24,6 +27,10 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     private ViewPager mViewPager;
     private List<Fragment> mHomeSubFragment;
     private FragmentAdapter mFragmentAdapter;
+
+    private ImageView mCursorImage;
+    private LinearLayout.LayoutParams mCursorParams;
+    private int tabWidth;
 
     public HomeFragment(){
         HomeRecommendFragment homeRecommendFragment = new HomeRecommendFragment();
@@ -48,7 +55,11 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         mViewPager = (ViewPager) view.findViewById(R.id.recommend_view_pager);
-
+        mCursorImage = (ImageView) view.findViewById(R.id.tab_cursor_image);
+        mCursorParams = (LinearLayout.LayoutParams) mCursorImage.getLayoutParams();
+        WindowManager windowManager = (WindowManager) getActivity().getSystemService(Context.WINDOW_SERVICE);
+        int width = windowManager.getDefaultDisplay().getWidth();
+        tabWidth = width / 5;
         FragmentManager fm = getChildFragmentManager();
         mFragmentAdapter = new FragmentAdapter(fm,mHomeSubFragment);
         mViewPager.setAdapter(mFragmentAdapter);
@@ -59,6 +70,9 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         Log.d(TAG, "onPageScrolled: ");
+        mCursorParams.leftMargin = positionOffsetPixels / 5 + tabWidth * position;
+        mCursorImage.setLayoutParams(mCursorParams);
+
     }
 
     @Override
