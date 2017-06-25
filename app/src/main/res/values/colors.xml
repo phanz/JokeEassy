@@ -8,5 +8,6 @@
 
     <color name="statusBar">#CFCCC2</color>
     <color name="titleBar">#DCD9CF</color>
+    <color name="bg_light_gray">#F2F2F2</color>
 
 </resources>

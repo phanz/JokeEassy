@@ -1,9 +1,11 @@
 package com.example.jokeeassy;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,7 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
     public static final String TAG = "MainActivity";
 
     @BindView(R.id.home_image)
@@ -64,7 +66,7 @@ public class MainActivity extends Activity {
         mReviewFragment = new ReviewFragment();
         mMessageFragment = new MessageFragment();
         changeFragment(mHomeFragment);
-
+        mHomeImage.setBackgroundResource(R.drawable.ic_tab_home_pressed);
     }
 
     @OnClick({R.id.home_bottom_view, R.id.discovery_bottom_view,
@@ -105,7 +107,8 @@ public class MainActivity extends Activity {
             Bundle bundle = new Bundle();
             bundle.putString("key","Activity Data");//Fragment数据传递
             fragment.setArguments(bundle);
-            getFragmentManager().beginTransaction().replace(R.id.fl_content,fragment).commit();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fl_content,fragment).commit();
         }
     }
 }
