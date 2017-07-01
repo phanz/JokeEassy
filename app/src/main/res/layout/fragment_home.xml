@@ -3,80 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
+    <com.example.widgets.NavigatorView
         android:id="@+id/tab_list_layout"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp">
-
-            <ImageView
-                android:id="@+id/tab_cursor_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/btn_common_pressed"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/tab_list_layout2"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:orientation="horizontal"
-            android:background="@color/white">
-
-            <!--<com.example.widgets.ColorTrackView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                zhy:text="相关" />
-
-            <com.example.widgets.ColorTrackView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                zhy:text="相关" />
-
-            <com.example.widgets.ColorTrackView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                zhy:text="相关" />
-
-            <com.example.widgets.ColorTrackView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                zhy:text="相关" />
-
-            <com.example.widgets.ColorTrackView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                zhy:text="相关" />
-
-            <com.example.widgets.ColorTrackView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                zhy:text="相关" />-->
-
-            <!--<TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="段子"
-                android:textSize="16sp"
-                android:layout_gravity="center"
-                android:gravity="center"/>
-
-                <com.example.colortrackview.ColorTrackView
-                android:id="@+id/id_tab_03"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                zhy:text="相关"
-                zhy:text_change_color="#ffff0000"
-                zhy:text_origin_color="#ff000000"
-                zhy:text_size="18sp" />  -->
-
-        </LinearLayout>
-    </FrameLayout>
-
+        android:layout_height="wrap_content" />
 
     <View
         android:id="@+id/tab_fragment_divider"
