@@ -35,7 +35,7 @@ public class ColorTextView extends View {
     private Rect mOriginRect;
     private Rect mCursorRect;
     private int mTextOriginColor = 0xff000000;
-    private int mTextChangeColor = 0xffff0000;
+    private int mTextChangeColor = 0xffffffff;
 
     public ColorTextView(Context context) {
         super(context);
@@ -124,13 +124,8 @@ public class ColorTextView extends View {
     }
 
     public void setCursorRect(RectF rect){
-        String log = String.format("cursorLeft:%d\tgetLeft:%d\tgetX:%d",mCursorRect.left,getLeft(),(int)getX());
-        //Log.d(TAG,log);
-        Rect tempRect = new Rect();
-        int left = getLeft();
-        tempRect.left = (int)(rect.left - left);
-        tempRect.right = (int)(rect.right - left);
-        mCursorRect = tempRect;
+        mCursorRect.left = (int)(rect.left - getLeft());
+        mCursorRect.right = (int)(rect.right - getLeft());
         invalidate();
     }
 
@@ -147,30 +142,23 @@ public class ColorTextView extends View {
 
         int textLeft = mTextStartX;
         int textRight = mTextStartX + mTextWidth;
-        String log = String.format("Cursor(%d,%d)\tText(%d,%d)",cursorRect.left,cursorRect.right,textLeft,textRight);
-        Log.d(TAG,log);
 
         if(cursorRect.right <= textLeft || cursorRect.left >= textRight){//不相交
-            Log.d(TAG,"不相交");
             drawText_h(canvas,mTextOriginColor,textLeft,textRight);
 
         }else if(cursorRect.right <= textRight){//左交
-            Log.d(TAG,"左交");
             drawText_h(canvas,mTextChangeColor,textLeft,cursorRect.right);
             drawText_h(canvas,mTextOriginColor,cursorRect.right,textRight);
 
         }else if(cursorRect.left > textLeft && cursorRect.right < textRight){//内含
-            Log.d(TAG,"内含");
             drawText_h(canvas,mTextOriginColor,textLeft,cursorRect.left);
             drawText_h(canvas,mTextChangeColor,cursorRect.left,cursorRect.right);
             drawText_h(canvas,mTextOriginColor,cursorRect.right,textRight);
 
         }else if(cursorRect.left < textLeft && cursorRect.right > textRight){//外围
-            Log.d(TAG,"外围");
             drawText_h(canvas,mTextChangeColor,textLeft,textRight);
 
         }else if(cursorRect.left <= textRight){ //右交
-            Log.d(TAG,"右交");
             drawText_h(canvas,mTextOriginColor,textLeft,cursorRect.left);
             drawText_h(canvas,mTextChangeColor,cursorRect.left,textRight);
         }else{
@@ -183,7 +171,7 @@ public class ColorTextView extends View {
     private void drawText_h(Canvas canvas, int color, int startX, int endX) {
         mPaint.setColor(color);
         mPaint.setStyle(Paint.Style.STROKE);
-        canvas.drawRect(startX, 0, endX, getMeasuredHeight(), mPaint);
+        //canvas.drawRect(startX, 0, endX, getMeasuredHeight(), mPaint);
         canvas.save(Canvas.CLIP_SAVE_FLAG);
         canvas.clipRect(startX, 0, endX, getMeasuredHeight());// left, top,
         // right, bottom
@@ -196,6 +184,10 @@ public class ColorTextView extends View {
         this.mText = text;
         requestLayout();
         invalidate();
+    }
+
+    public int getTextWidth(){
+        return mTextWidth;
     }
 
 }

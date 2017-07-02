@@ -118,7 +118,7 @@ public class NavigatorView extends RelativeLayout {
         mCursorRectF.left = tabWidth * (1 - mCursorScale)/2 + totalOffsetX ;
         mCursorRectF.right = mCursorRectF.left + tabWidth * mCursorScale;
 
-        ColorTextView textView = (ColorTextView) mTabLayout.getChildAt(position);
+         ColorTextView textView = (ColorTextView) mTabLayout.getChildAt(position);
         textView.setCursorRect(mCursorRectF);
 
         if(position + 1 < mTabLayout.getChildCount()){
@@ -137,7 +137,6 @@ public class NavigatorView extends RelativeLayout {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        //Log.d(TAG,mCursorRectF.toString());
         canvas.drawRoundRect(mCursorRectF,mRadius,mRadius, mPaint);
     }
 

@@ -78,17 +78,12 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         mFragmentAdapter = new FragmentAdapter(fm,mHomeSubFragment);
         mViewPager.setAdapter(mFragmentAdapter);
         mViewPager.setCurrentItem(0);
-        mNavigatorView.setCursorPosition(0,0);
-        mViewPager.setOnPageChangeListener(this);
+        mViewPager.addOnPageChangeListener(this);
         return view;
     }
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        String log = String.format("position:%d,\tpositionOffset:%f\tpositionOffsetPixels:%d",
-                position,positionOffset,positionOffsetPixels);
-
-        //Log.d(TAG,log);
         mNavigatorView.setCursorPosition(position,positionOffset);
 
     }
@@ -101,13 +96,6 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     @Override
     public void onPageScrollStateChanged(int state) {
         //Log.d(TAG, "onPageScrollStateChanged: ");
-    }
-
-    public ColorTrackView makeColorTrackView(String title){
-        ColorTrackView tabView = new ColorTrackView(getActivity(),null);
-        tabView.setText(title);
-        tabView.setTextSize(DisplayUtils.sp2px(getActivity(),18));
-        return tabView;
     }
 
 }
