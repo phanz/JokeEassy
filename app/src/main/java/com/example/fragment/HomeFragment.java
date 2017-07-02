@@ -88,7 +88,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         String log = String.format("position:%d,\tpositionOffset:%f\tpositionOffsetPixels:%d",
                 position,positionOffset,positionOffsetPixels);
 
-        Log.d(TAG,log);
+        //Log.d(TAG,log);
         mNavigatorView.setCursorPosition(position,positionOffset);
 
     }

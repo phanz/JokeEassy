@@ -39,14 +39,10 @@ public class NavigatorView extends RelativeLayout {
     private int tabWidth;
     private int tabHeight;
 
-    private int mCursorIndex;
     private static final float mRadius = 16;
     private float mCursorScale = 0.8f;
 
-    private int mCursorOffsetX;
-    private int mCursorOffsetY;
-    private int mCursorWidth;
-    private int mCursorHeight;
+    private RectF mCursorRectF;
 
     public OnTabClickListener mOnTabClickListener;
     public NavigatorView(Context context) {
@@ -61,6 +57,7 @@ public class NavigatorView extends RelativeLayout {
 
     public void init(Context context){
         setWillNotDraw(false);//ViewGroup本身不含内容，默认为透明的，不触发onDraw操作，需要手动开启
+        mCursorRectF = new RectF(0,0,0,0);
         mContext = context;
         mPaint = new Paint();
         mPaint.setColor(context.getResources().getColor(R.color.tab_cursor_bg));
@@ -74,6 +71,7 @@ public class NavigatorView extends RelativeLayout {
         mScreenWidth = windowManager.getDefaultDisplay().getWidth();
         setTabCount(TAB_NUM_DEFAULT);
 
+
     }
 
     public void setTabList(List<String> tabList){
@@ -83,14 +81,8 @@ public class NavigatorView extends RelativeLayout {
 
         ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(tabWidth,tabHeight);
         for(int i = 0; i < tabList.size(); i++){
-            String title = tabList.get(i);
-            /*TextView textView = new TextView(mContext);
-            textView.setText(title);
-            textView.setGravity(Gravity.CENTER);*/
-            //textView.setBackgroundColor( (i % 2 == 1) ? Color.RED : Color.BLUE);
-
             ColorTextView textView = new ColorTextView(mContext,null);
-            textView.setText(title);
+            textView.setText(tabList.get(i));
             textView.setLayoutParams(params);
             mTabLayout.addView(textView);
 
@@ -112,32 +104,26 @@ public class NavigatorView extends RelativeLayout {
         tabWidth = mScreenWidth / mTabCount;
         tabHeight = DisplayUtils.dp2px(mContext,40);
 
-        mCursorOffsetX = (int)(tabWidth * (1 - mCursorScale)/2);
-        mCursorOffsetY = (int)(tabHeight * (1 - mCursorScale)/2);
-        mCursorWidth = (int)(mCursorScale * tabWidth);
-        mCursorHeight = (int)(mCursorScale * tabHeight);
+        mCursorRectF.left = tabWidth * (1 - mCursorScale)/2;
+        mCursorRectF.top = tabHeight * (1 - mCursorScale)/2;
+        mCursorRectF.right = mCursorRectF.left + mCursorScale * tabWidth;
+        mCursorRectF.bottom = mCursorRectF.top + mCursorScale * tabHeight;
 
         invalidate();
     }
 
     public void setCursorPosition(int position, float positionOffset){
-        mCursorOffsetX = (int)(tabWidth * (1 - mCursorScale)/2) + position * tabWidth + (int)(positionOffset * tabWidth);
-        mCursorIndex = position;
+        float totalOffsetX = (position + positionOffset) * tabWidth;
 
-        Rect rect = new Rect(0,0,0,0);
-        ColorTextView textView = null;
+        mCursorRectF.left = tabWidth * (1 - mCursorScale)/2 + totalOffsetX ;
+        mCursorRectF.right = mCursorRectF.left + tabWidth * mCursorScale;
 
-        textView = (ColorTextView) mTabLayout.getChildAt(position);
-        int tempX = (int)(tabWidth * (1 - mCursorScale)/2) + (int)(positionOffset * tabWidth);
-        rect.left = tempX;
-        rect.right = tempX + mCursorWidth;
-        textView.setCursorRect(rect);
+        ColorTextView textView = (ColorTextView) mTabLayout.getChildAt(position);
+        textView.setCursorRect(mCursorRectF);
 
         if(position + 1 < mTabLayout.getChildCount()){
             textView = (ColorTextView) mTabLayout.getChildAt(position + 1);
-            rect.left = 0;
-            rect.right = tempX;
-            textView.setCursorRect(rect);
+            textView.setCursorRect(mCursorRectF);
         }
 
         invalidate();
@@ -150,15 +136,9 @@ public class NavigatorView extends RelativeLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        RectF rectF = new RectF(mCursorOffsetX,
-                mCursorOffsetY,
-                mCursorOffsetX + mCursorWidth,
-                mCursorOffsetY + mCursorHeight);
 
-        String log = String.format("Left:%d\tTop:%d\tRight:%d\tBottom:%d",
-                mCursorOffsetX,mCursorOffsetY,mCursorOffsetX + mCursorWidth,mCursorOffsetY + mCursorHeight);
-        //Log.d(TAG,log);
-        canvas.drawRoundRect(rectF,mRadius,mRadius, mPaint);
+        //Log.d(TAG,mCursorRectF.toString());
+        canvas.drawRoundRect(mCursorRectF,mRadius,mRadius, mPaint);
     }
 
     public interface OnTabClickListener{

@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetrics;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -32,7 +33,7 @@ public class ColorTextView extends View {
     private int mTextStartY;
 
     private Rect mOriginRect;
-    private Rect mChangeRect;
+    private Rect mCursorRect;
     private int mTextOriginColor = 0xff000000;
     private int mTextChangeColor = 0xffff0000;
 
@@ -62,6 +63,7 @@ public class ColorTextView extends View {
         mPaint.setColor(Color.RED);
         mPaint.setTextSize(mTextSize);
         mOriginRect = new Rect();
+        mCursorRect = new Rect();
     }
 
     @Override
@@ -121,68 +123,59 @@ public class ColorTextView extends View {
         return result;
     }
 
-    public void setCursorRect(Rect rect){
-        mChangeRect = rect;
-        /*int textLeft = mTextStartX;
-        int textRight = mTextStartX + mTextWidth;
-        Rect mTempRect = new Rect(textLeft,0,textLeft + textRight / 2,0);
-        mChangeRect = mTempRect;*/
+    public void setCursorRect(RectF rect){
+        String log = String.format("cursorLeft:%d\tgetLeft:%d\tgetX:%d",mCursorRect.left,getLeft(),(int)getX());
+        //Log.d(TAG,log);
+        mCursorRect.left = (int)(rect.left - getLeft());
+        mCursorRect.top = (int)(rect.top - getTop());
+        mCursorRect.right = (int)(rect.right - getLeft());
+        mCursorRect.bottom = (int)(rect.bottom - getBottom());
         invalidate();
-    }
-
-    public void setCursorPosition(float scale,float start,float end){
-
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawTextRect(canvas, mChangeRect);
+        drawTextRect(canvas, mCursorRect);
     }
 
-    private void drawTextRect(Canvas canvas,Rect changeRect){
+    private void drawTextRect(Canvas canvas,Rect cursorRect){
         mPaint.setColor(Color.RED);
 
         canvas.save(Canvas.CLIP_SAVE_FLAG);
 
         int textLeft = mTextStartX;
         int textRight = mTextStartX + mTextWidth;
-        if(changeRect == null){
-            changeRect = new Rect(0,0,0,0);
-        }
-        String cursorRect = String.format("cursor.left:%d\ttext.left:%d\n",changeRect.left,textLeft);
-        String textRect = String.format("cursor.right:%d\ttext.right:%d\n",changeRect.right,textRight);
-//        Log.d(TAG,cursorRect);
-//        Log.d(TAG,textRect);
-        if(changeRect.right <= textLeft || changeRect.left >= textRight){//不相交
-            //Log.d(TAG,"不相交");
+        String log = String.format("Cursor(%d,%d)\tText(%d,%d)",cursorRect.left,cursorRect.right,textLeft,textRight);
+        Log.d(TAG,log);
+
+        if(cursorRect.right <= textLeft || cursorRect.left >= textRight){//不相交
+            Log.d(TAG,"不相交");
             drawText_h(canvas,mTextOriginColor,textLeft,textRight);
 
-        }else if(changeRect.right <= textRight){//左交
-            //Log.d(TAG,"左交");
-            drawText_h(canvas,mTextChangeColor,textLeft,changeRect.right);
-            drawText_h(canvas,mTextOriginColor,changeRect.right,textRight);
+        }else if(cursorRect.right <= textRight){//左交
+            Log.d(TAG,"左交");
+            drawText_h(canvas,mTextChangeColor,textLeft,cursorRect.right);
+            drawText_h(canvas,mTextOriginColor,cursorRect.right,textRight);
 
-        }else if(changeRect.left > textLeft && changeRect.right < textRight){//内含
-            //Log.d(TAG,"内含");
-            drawText_h(canvas,mTextOriginColor,textLeft,changeRect.left);
-            drawText_h(canvas,mTextChangeColor,changeRect.left,changeRect.right);
-            drawText_h(canvas,mTextOriginColor,changeRect.right,textRight);
+        }else if(cursorRect.left > textLeft && cursorRect.right < textRight){//内含
+            Log.d(TAG,"内含");
+            drawText_h(canvas,mTextOriginColor,textLeft,cursorRect.left);
+            drawText_h(canvas,mTextChangeColor,cursorRect.left,cursorRect.right);
+            drawText_h(canvas,mTextOriginColor,cursorRect.right,textRight);
 
-        }else if(changeRect.left < textLeft && changeRect.right > textRight){//外围
-            //Log.d(TAG,"外围");
+        }else if(cursorRect.left < textLeft && cursorRect.right > textRight){//外围
+            Log.d(TAG,"外围");
             drawText_h(canvas,mTextChangeColor,textLeft,textRight);
 
-        }else if(changeRect.left <= textRight){ //右交
-            //Log.d(TAG,"右交");
-            drawText_h(canvas,mTextOriginColor,textLeft,changeRect.left);
-            drawText_h(canvas,mTextChangeColor,changeRect.right,textRight);
+        }else if(cursorRect.left <= textRight){ //右交
+            Log.d(TAG,"右交");
+            drawText_h(canvas,mTextOriginColor,textLeft,cursorRect.left);
+            drawText_h(canvas,mTextChangeColor,cursorRect.right,textRight);
         }else{
-            //Log.d(TAG,"状态判定有遗漏");
+            Log.d(TAG,"状态判定有遗漏");
         }
 
-//        drawText_h(canvas,Color.BLACK,mTextStartX,mTextStartX + 100);
-//        drawText_h(canvas,Color.RED,mTextStartX + 100,mTextStartX + mTextWidth);
         canvas.restore();
     }
 
@@ -194,8 +187,7 @@ public class ColorTextView extends View {
         canvas.clipRect(startX, 0, endX, getMeasuredHeight());// left, top,
         // right, bottom
         canvas.drawText(mText, mTextStartX,
-                getMeasuredHeight() / 2
-                        - ((mPaint.descent() + mPaint.ascent()) / 2), mPaint);
+                getMeasuredHeight() / 2 - ((mPaint.descent() + mPaint.ascent()) / 2), mPaint);
         canvas.restore();
     }
 
