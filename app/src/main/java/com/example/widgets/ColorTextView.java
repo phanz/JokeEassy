@@ -126,10 +126,11 @@ public class ColorTextView extends View {
     public void setCursorRect(RectF rect){
         String log = String.format("cursorLeft:%d\tgetLeft:%d\tgetX:%d",mCursorRect.left,getLeft(),(int)getX());
         //Log.d(TAG,log);
-        mCursorRect.left = (int)(rect.left - getLeft());
-        mCursorRect.top = (int)(rect.top - getTop());
-        mCursorRect.right = (int)(rect.right - getLeft());
-        mCursorRect.bottom = (int)(rect.bottom - getBottom());
+        Rect tempRect = new Rect();
+        int left = getLeft();
+        tempRect.left = (int)(rect.left - left);
+        tempRect.right = (int)(rect.right - left);
+        mCursorRect = tempRect;
         invalidate();
     }
 
@@ -171,7 +172,7 @@ public class ColorTextView extends View {
         }else if(cursorRect.left <= textRight){ //右交
             Log.d(TAG,"右交");
             drawText_h(canvas,mTextOriginColor,textLeft,cursorRect.left);
-            drawText_h(canvas,mTextChangeColor,cursorRect.right,textRight);
+            drawText_h(canvas,mTextChangeColor,cursorRect.left,textRight);
         }else{
             Log.d(TAG,"状态判定有遗漏");
         }
