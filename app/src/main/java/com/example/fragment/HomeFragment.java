@@ -78,6 +78,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         mFragmentAdapter = new FragmentAdapter(fm,mHomeSubFragment);
         mViewPager.setAdapter(mFragmentAdapter);
         mViewPager.setCurrentItem(0);
+        mNavigatorView.setCursorPosition(0,0);
         mViewPager.setOnPageChangeListener(this);
         return view;
     }

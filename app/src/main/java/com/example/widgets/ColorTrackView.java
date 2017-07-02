@@ -32,10 +32,10 @@ public class ColorTrackView extends View {
 
     private int mDirection = DIRECTION_LEFT;
 
-    private static final int DIRECTION_LEFT = 0;
-    private static final int DIRECTION_RIGHT = 1;
-    private static final int DIRECTION_TOP = 2;
-    private static final int DIRECTION_BOTTOM = 3;
+    public static final int DIRECTION_LEFT = 0;
+    public static final int DIRECTION_RIGHT = 1;
+    public static final int DIRECTION_TOP = 2;
+    public static final int DIRECTION_BOTTOM = 3;
 
     public void setDirection(int direction) {
         mDirection = direction;
@@ -43,7 +43,7 @@ public class ColorTrackView extends View {
 
     private String mText = "张鸿洋";
     private Paint mPaint;
-    private int mTextSize = sp2px(30);
+    private int mTextSize = sp2px(18);
 
     private int mTextOriginColor = 0xff000000;
     private int mTextChangeColor = 0xffff0000;
