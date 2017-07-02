@@ -33,15 +33,15 @@ public class NavigatorView extends RelativeLayout {
 
     private Context mContext;
 
+    private int mScreenWidth;
     private static final int TAB_NUM_DEFAULT = 6;
     private int mTabCount;
-    private int mScreenWidth;
     private int tabWidth;
     private int tabHeight;
 
     private int mCursorIndex;
     private static final float mRadius = 16;
-    private float mCursorScale = 0.6f;
+    private float mCursorScale = 0.8f;
 
     private int mCursorOffsetX;
     private int mCursorOffsetY;
@@ -89,7 +89,7 @@ public class NavigatorView extends RelativeLayout {
             textView.setGravity(Gravity.CENTER);*/
             //textView.setBackgroundColor( (i % 2 == 1) ? Color.RED : Color.BLUE);
 
-            ColorTrackView textView = new ColorTrackView(mContext,null);
+            ColorTextView textView = new ColorTextView(mContext,null);
             textView.setText(title);
             textView.setLayoutParams(params);
             mTabLayout.addView(textView);
@@ -123,16 +123,23 @@ public class NavigatorView extends RelativeLayout {
     public void setCursorPosition(int position, float positionOffset){
         mCursorOffsetX = (int)(tabWidth * (1 - mCursorScale)/2) + position * tabWidth + (int)(positionOffset * tabWidth);
         mCursorIndex = position;
-        if (positionOffset > 0) {
-            ColorTrackView left = (ColorTrackView) mTabLayout.getChildAt(position);
-            ColorTrackView right = (ColorTrackView) mTabLayout.getChildAt(position + 1);
 
-            left.setDirection(ColorTrackView.DIRECTION_RIGHT);
-            right.setDirection(ColorTrackView.DIRECTION_LEFT);
-            Log.e("TAG", positionOffset + "");
-            left.setProgress(1 - positionOffset);
-            right.setProgress(positionOffset);
+        Rect rect = new Rect(0,0,0,0);
+        ColorTextView textView = null;
+
+        textView = (ColorTextView) mTabLayout.getChildAt(position);
+        int tempX = (int)(tabWidth * (1 - mCursorScale)/2) + (int)(positionOffset * tabWidth);
+        rect.left = tempX;
+        rect.right = tempX + mCursorWidth;
+        textView.setCursorRect(rect);
+
+        if(position + 1 < mTabLayout.getChildCount()){
+            textView = (ColorTextView) mTabLayout.getChildAt(position + 1);
+            rect.left = 0;
+            rect.right = tempX;
+            textView.setCursorRect(rect);
         }
+
         invalidate();
     }
 
@@ -150,7 +157,7 @@ public class NavigatorView extends RelativeLayout {
 
         String log = String.format("Left:%d\tTop:%d\tRight:%d\tBottom:%d",
                 mCursorOffsetX,mCursorOffsetY,mCursorOffsetX + mCursorWidth,mCursorOffsetY + mCursorHeight);
-        Log.d(TAG,log);
+        //Log.d(TAG,log);
         canvas.drawRoundRect(rectF,mRadius,mRadius, mPaint);
     }
 

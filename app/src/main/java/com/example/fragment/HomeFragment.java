@@ -95,12 +95,12 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageSelected(int position) {
-        Log.d(TAG, "onPageSelected: ");
+        //Log.d(TAG, "onPageSelected: ");
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
-        Log.d(TAG, "onPageScrollStateChanged: ");
+        //Log.d(TAG, "onPageScrollStateChanged: ");
     }
 
     public ColorTrackView makeColorTrackView(String title){
