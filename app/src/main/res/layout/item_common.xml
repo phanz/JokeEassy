@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:orientation="vertical">
+
+   <RelativeLayout
+       android:id="@+id/user_info_group"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+
+       <ImageView
+           android:id="@+id/user_avatar"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:background="@drawable/default_round_head"/>
+
+       <TextView
+           android:id="@+id/user_name"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_marginLeft="15dp"
+           android:layout_centerVertical="true"
+           android:layout_toRightOf="@id/user_avatar"
+           android:text="鱼人下夜"/>
+
+       <ImageView
+           android:id="@+id/dislike_image"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_alignParentRight="true"
+           android:background="@drawable/ic_dislike"/>
+
+   </RelativeLayout>
+
+    <TextView
+        android:id="@+id/content_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_info_group"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
+        android:text="一群男的脱掉裤子，女的脱掉上衣，打一成语。？"/>
+
+    <TextView
+        android:id="@+id/category_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/content_text"
+        android:layout_marginTop="20dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:background="@drawable/category_label"
+        android:gravity="center"
+        android:text="内涵段子"
+        android:textSize="11sp"
+        android:textColor="@color/blue_light_solid"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:id="@+id/digg_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/ic_digg_normal"/>
+
+        <TextView
+            android:id="@+id/digg_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/digg_image"
+            android:layout_marginLeft="@dimen/item_bottom_text_margin_left"
+            android:text="152"/>
+
+        <ImageView
+            android:id="@+id/bury_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/digg_image"
+            android:layout_marginLeft="@dimen/item_bottom_margin_left"
+            android:background="@drawable/ic_bury_normal"/>
+
+        <TextView
+            android:id="@+id/bury_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/bury_image"
+            android:layout_marginLeft="@dimen/item_bottom_text_margin_left"
+            android:text="47"/>
+
+        <ImageView
+            android:id="@+id/comment_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/bury_image"
+            android:layout_marginLeft="@dimen/item_bottom_margin_left"
+            android:background="@drawable/ic_comment_normal"/>
+
+        <TextView
+            android:id="@+id/comment_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/comment_image"
+            android:layout_marginLeft="@dimen/item_bottom_text_margin_left"
+            android:text="81"/>
+
+        <ImageView
+            android:id="@+id/more_action_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/comment_image"
+            android:layout_marginLeft="@dimen/item_bottom_margin_left"
+            android:background="@drawable/ic_more_action_normal"/>
+    </RelativeLayout>
+
+</RelativeLayout>

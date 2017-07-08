@@ -14,16 +14,10 @@ import com.example.jokeeassy.R;
  */
 public class HomeSubscribeFragment extends Fragment {
 
-
-    public HomeSubscribeFragment() {
-        // Required empty public constructor
-    }
-
-
+    public static final String  TAG = "HomeSubscribeFragment";
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.fragment_home_subscribe, container, false);
     }
 

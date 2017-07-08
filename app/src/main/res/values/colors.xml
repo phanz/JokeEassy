@@ -5,6 +5,10 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="white">#FFF</color>
+    <color name="blue">#00F</color>
+
+    <color name="blue_light_stroke">#80D1EB</color>
+    <color name="blue_light_solid">#39AFD4</color>
 
     <color name="statusBar">#CFCCC2</color>
     <color name="titleBar">#DCD9CF</color>
