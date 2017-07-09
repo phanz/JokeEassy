@@ -44,6 +44,9 @@ public class NavigatorView extends RelativeLayout {
 
     private RectF mCursorRectF;
 
+    private boolean mClickSwitching;
+    private int mClickIndex;
+
     public OnTabClickListener mOnTabClickListener;
     public NavigatorView(Context context) {
         super(context);
@@ -71,6 +74,9 @@ public class NavigatorView extends RelativeLayout {
         mScreenWidth = windowManager.getDefaultDisplay().getWidth();
         setTabCount(TAB_NUM_DEFAULT);
 
+        mClickSwitching = false;
+        mClickIndex = 0;
+
 
     }
 
@@ -91,6 +97,9 @@ public class NavigatorView extends RelativeLayout {
                 public void onClick(View view) {
                     if(mOnTabClickListener != null){
                         int index = ((ViewGroup)view.getParent()).indexOfChild(view);
+                        mClickSwitching = true;
+                        mClickIndex = index;
+                        skipToPosition(index);
                         mOnTabClickListener.onTabClick(index);
                     }
                 }
@@ -113,6 +122,12 @@ public class NavigatorView extends RelativeLayout {
     }
 
     public void setCursorPosition(int position, float positionOffset){
+        if(mClickSwitching){
+            if(position == mClickIndex && positionOffset == 0) {
+                mClickSwitching = false;
+            }
+            return;
+        }
         float totalOffsetX = (position + positionOffset) * tabWidth;
 
         mCursorRectF.left = tabWidth * (1 - mCursorScale)/2 + totalOffsetX ;
@@ -126,6 +141,22 @@ public class NavigatorView extends RelativeLayout {
             textView.setCursorRect(mCursorRectF);
         }
 
+        invalidate();
+    }
+
+    public void skipToPosition(int position){
+        int count = mTabLayout.getChildCount();
+        mCursorRectF.left = 0;
+        mCursorRectF.right = 0;
+        ColorTextView colorTextView = null;
+        for(int i = 0; i < count; i++){
+            colorTextView = (ColorTextView)mTabLayout.getChildAt(i);
+            colorTextView.setCursorRect(mCursorRectF);
+        }
+        colorTextView = (ColorTextView)mTabLayout.getChildAt(position);
+        mCursorRectF.left = tabWidth * position + tabWidth * (1 - mCursorScale)/2 ;
+        mCursorRectF.right = mCursorRectF.left + tabWidth * mCursorScale;
+        colorTextView.setCursorRect(mCursorRectF);
         invalidate();
     }
 
