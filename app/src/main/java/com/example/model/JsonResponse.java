@@ -11,4 +11,20 @@ public class JsonResponse {
     private String message;
     @SerializedName("data")
     private RefreshContent data;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public RefreshContent getData() {
+        return data;
+    }
+
+    public void setData(RefreshContent data) {
+        this.data = data;
+    }
 }

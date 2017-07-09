@@ -59,6 +59,24 @@ public class HttpDataRepository {
     }
 
     public void getTales(Observer<JsonResponse> observer) {
+
+        Map<String,String> queryParams = getBaseQueryMap();
+        mJokeService.jokeTales(queryParams)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+
+    public void getGitHubInfo(Observer<List<Contributor>> observer) {
+
+        mGitHubService.rxContributors("square", "retrofit")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+
+    }
+
+    private Map<String,String> getBaseQueryMap(){
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("mpic", "1");
         queryParams.put("essence", "1");
@@ -89,23 +107,10 @@ public class HttpDataRepository {
         queryParams.put("uuid", "863151025042125");
         queryParams.put("openudid", "7b58789a39c2ab62");
         queryParams.put("manifest_version_code", "431");
-
-        mJokeService.jokeTales(queryParams)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
+        return queryParams;
     }
 
-    public void getGitHubInfo(Observer<List<Contributor>> observer) {
-
-        mGitHubService.rxContributors("square", "retrofit")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(observer);
-
-    }
-
-    public Retrofit getRetrofit(String url){
+    private Retrofit getRetrofit(String url){
         Retrofit retrofit = null;
         if(mRetrofitMap.containsKey(url)){
             retrofit = mRetrofitMap.get(url);
