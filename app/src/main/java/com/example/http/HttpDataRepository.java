@@ -12,8 +12,10 @@ import org.reactivestreams.Subscriber;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -61,6 +63,36 @@ public class HttpDataRepository {
     public void getTales(Observer<JsonResponse> observer) {
 
         Map<String,String> queryParams = getBaseQueryMap();
+        mJokeService.jokeTales(queryParams)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+
+    public void getPictures(Observer<JsonResponse> observer) {
+
+        Map<String,String> queryParams = getBaseQueryMap();
+        queryParams.put("content_type", "-103");
+        mJokeService.jokeTales(queryParams)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+
+    public void getVideos(Observer<JsonResponse> observer) {
+
+        Map<String,String> queryParams = getBaseQueryMap();
+        queryParams.put("content_type", "-104");
+        mJokeService.jokeTales(queryParams)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+
+    public void getRecommends(Observer<JsonResponse> observer) {
+
+        Map<String,String> queryParams = getBaseQueryMap();
+        queryParams.put("content_type", "-101");
         mJokeService.jokeTales(queryParams)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -119,7 +151,7 @@ public class HttpDataRepository {
                     .baseUrl(url)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
-                    //.client(getOkHttpClient())
+                    .client(getOkHttpClient())
                     .build();
             mRetrofitMap.put(url,retrofit);
         }
@@ -127,27 +159,14 @@ public class HttpDataRepository {
     }
 
     private OkHttpClient getOkHttpClient() {
-        //日志显示级别
-        HttpLoggingInterceptor.Level level = HttpLoggingInterceptor.Level.BODY;
-        //新建log拦截器
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(String message) {
-                Log.d("okhttp", "OkHttp====Message:" + message);
-            }
-        });
-        loggingInterceptor.setLevel(level);
-        //定制OkHttp
-        OkHttpClient.Builder httpClientBuilder = new OkHttpClient
-                .Builder();
-        //OkHttp进行添加拦截器loggingInterceptor
-        httpClientBuilder.addInterceptor(loggingInterceptor)
-                .addInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        return null;
-                    }
-                });
-        return httpClientBuilder.build();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.addInterceptor(loggingInterceptor);
+        builder.connectTimeout(15, TimeUnit.SECONDS);
+        builder.readTimeout(15, TimeUnit.SECONDS);
+        builder.retryOnConnectionFailure(true);
+        OkHttpClient okHttpClient = builder.build();
+        return okHttpClient;
     }
 }

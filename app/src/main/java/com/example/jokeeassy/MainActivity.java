@@ -16,6 +16,8 @@ import com.example.fragment.HomeFragment;
 import com.example.fragment.MessageFragment;
 import com.example.fragment.ReviewFragment;
 import com.example.widget.TitleBar;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,6 +51,9 @@ public class MainActivity extends FragmentActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(getResources().getColor(R.color.statusBar));
         }
+        ImageLoaderConfiguration configuration = ImageLoaderConfiguration.createDefault(this);
+        ImageLoader.getInstance().init(configuration);
+
         ButterKnife.bind(this);
         TitleBar titleBar = (TitleBar) findViewById(R.id.title_bar);
         titleBar.setLeftImageResource(R.drawable.ic_discovery_default_avatar);

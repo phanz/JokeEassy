@@ -87,8 +87,8 @@ public class Group {
     private int diggCount;
     @SerializedName("has_hot_comments")
     private int hasHotComments;
-    @SerializedName("allow_hot_comments")
-    private boolean allDislike;
+    @SerializedName("allow_dislike")
+    private boolean allowDislike;
     @SerializedName("user_repin")
     private int userRepin;
     @SerializedName("neihan_hot_link")
@@ -97,6 +97,72 @@ public class Group {
     private long groupId;
     @SerializedName("category_id")
     private int categoryId;
+
+
+    @SerializedName("max_screen_width_percent")
+    private double maxScreenWidthPercent;
+    @SerializedName("min_screen_width_percent")
+    private double minScreenHeightPercent;
+    @SerializedName("large_image")
+    private ImageBean largeImage;
+    @SerializedName("large_image_list")
+    private List<ImageBean> largeImageList;
+    @SerializedName("thumb_image_list")
+    private List<ImageBean> thumbImageList;
+
+    @SerializedName("image_status")
+    private int imageStatus;
+    @SerializedName("middle_image")
+    private ImageBean middleImage;
+
+
+    /**=================以下为ViewGroup独有字段===================*/
+    @SerializedName("video_id")
+    private String videoId;
+    @SerializedName("360p_video")
+    private VideoBean video360p;
+    @SerializedName("mp4_url")
+    private String mp4Url;
+    @SerializedName("720p_video")
+    private VideoBean video720p;
+    @SerializedName("duration")
+    private double duration;
+    @SerializedName("480p_video")
+    private VideoBean video480p;
+    @SerializedName("keywords")
+    private String keywords;
+    @SerializedName("danmanku_attrs")
+    private DanmakuAttrs danmakuAttrs;
+    @SerializedName("m3u8_url")
+    private String m3u8Url;
+    @SerializedName("large_cover")
+    private ImageBean largeCover;
+    @SerializedName("title")
+    private String title;
+    @SerializedName("video_height")
+    private int videoHeight;
+    @SerializedName("cover_image_uri")
+    private String coverImageUri;
+    @SerializedName("publish_time")
+    private String publishTime;
+    @SerializedName("play_count")
+    private int playCount;
+    @SerializedName("medium_cover")
+    private ImageBean mediumCover;
+    @SerializedName("video_width")
+    private int videoWidth;
+    @SerializedName("flash_url")
+    private String flashUrl;
+    @SerializedName("uri")
+    private String uri;
+    @SerializedName("is_public_url")
+    private int isPublicUrl;
+    @SerializedName("origin_video")
+    private VideoBean originVideo;
+    @SerializedName("cover_image_url")
+    private String coverImageUrl;
+    @SerializedName("is_video")
+    private int isVideo;
 
     public String getText() {
         return text;
@@ -282,11 +348,11 @@ public class Group {
         this.userBury = userBury;
     }
 
-    public Map<String,String> getActivity() {
+    public Map<String, String> getActivity() {
         return activity;
     }
 
-    public void setActivity(Map<String,String> activity) {
+    public void setActivity(Map<String, String> activity) {
         this.activity = activity;
     }
 
@@ -402,12 +468,12 @@ public class Group {
         this.hasHotComments = hasHotComments;
     }
 
-    public boolean isAllDislike() {
-        return allDislike;
+    public boolean isAllowDislike() {
+        return allowDislike;
     }
 
-    public void setAllDislike(boolean allDislike) {
-        this.allDislike = allDislike;
+    public void setAllowDislike(boolean allowDislike) {
+        this.allowDislike = allowDislike;
     }
 
     public int getUserRepin() {
@@ -440,5 +506,245 @@ public class Group {
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public double getMaxScreenWidthPercent() {
+        return maxScreenWidthPercent;
+    }
+
+    public void setMaxScreenWidthPercent(double maxScreenWidthPercent) {
+        this.maxScreenWidthPercent = maxScreenWidthPercent;
+    }
+
+    public double getMinScreenHeightPercent() {
+        return minScreenHeightPercent;
+    }
+
+    public void setMinScreenHeightPercent(double minScreenHeightPercent) {
+        this.minScreenHeightPercent = minScreenHeightPercent;
+    }
+
+    public ImageBean getLargeImage() {
+        return largeImage;
+    }
+
+    public void setLargeImage(ImageBean largeImage) {
+        this.largeImage = largeImage;
+    }
+
+    public List<ImageBean> getLargeImageList() {
+        return largeImageList;
+    }
+
+    public void setLargeImageList(List<ImageBean> largeImageList) {
+        this.largeImageList = largeImageList;
+    }
+
+    public List<ImageBean> getThumbImageList() {
+        return thumbImageList;
+    }
+
+    public void setThumbImageList(List<ImageBean> thumbImageList) {
+        this.thumbImageList = thumbImageList;
+    }
+
+    public int getImageStatus() {
+        return imageStatus;
+    }
+
+    public void setImageStatus(int imageStatus) {
+        this.imageStatus = imageStatus;
+    }
+
+    public ImageBean getMiddleImage() {
+        return middleImage;
+    }
+
+    public void setMiddleImage(ImageBean middleImage) {
+        this.middleImage = middleImage;
+    }
+
+    public String getVideoId() {
+        return videoId;
+    }
+
+    public void setVideoId(String videoId) {
+        this.videoId = videoId;
+    }
+
+    public VideoBean getVideo360p() {
+        return video360p;
+    }
+
+    public void setVideo360p(VideoBean video360p) {
+        this.video360p = video360p;
+    }
+
+    public String getMp4Url() {
+        return mp4Url;
+    }
+
+    public void setMp4Url(String mp4Url) {
+        this.mp4Url = mp4Url;
+    }
+
+    public VideoBean getVideo720p() {
+        return video720p;
+    }
+
+    public void setVideo720p(VideoBean video720p) {
+        this.video720p = video720p;
+    }
+
+    public double getDuration() {
+        return duration;
+    }
+
+    public void setDuration(double duration) {
+        this.duration = duration;
+    }
+
+    public VideoBean getVideo480p() {
+        return video480p;
+    }
+
+    public void setVideo480p(VideoBean video480p) {
+        this.video480p = video480p;
+    }
+
+    public String getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    public DanmakuAttrs getDanmakuAttrs() {
+        return danmakuAttrs;
+    }
+
+    public void setDanmakuAttrs(DanmakuAttrs danmakuAttrs) {
+        this.danmakuAttrs = danmakuAttrs;
+    }
+
+    public String getM3u8Url() {
+        return m3u8Url;
+    }
+
+    public void setM3u8Url(String m3u8Url) {
+        this.m3u8Url = m3u8Url;
+    }
+
+    public ImageBean getLargeCover() {
+        return largeCover;
+    }
+
+    public void setLargeCover(ImageBean largeCover) {
+        this.largeCover = largeCover;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getVideoHeight() {
+        return videoHeight;
+    }
+
+    public void setVideoHeight(int videoHeight) {
+        this.videoHeight = videoHeight;
+    }
+
+    public String getCoverImageUri() {
+        return coverImageUri;
+    }
+
+    public void setCoverImageUri(String coverImageUri) {
+        this.coverImageUri = coverImageUri;
+    }
+
+    public String getPublishTime() {
+        return publishTime;
+    }
+
+    public void setPublishTime(String publishTime) {
+        this.publishTime = publishTime;
+    }
+
+    public int getPlayCount() {
+        return playCount;
+    }
+
+    public void setPlayCount(int playCount) {
+        this.playCount = playCount;
+    }
+
+    public ImageBean getMediumCover() {
+        return mediumCover;
+    }
+
+    public void setMediumCover(ImageBean mediumCover) {
+        this.mediumCover = mediumCover;
+    }
+
+    public int getVideoWidth() {
+        return videoWidth;
+    }
+
+    public void setVideoWidth(int videoWidth) {
+        this.videoWidth = videoWidth;
+    }
+
+    public String getFlashUrl() {
+        return flashUrl;
+    }
+
+    public void setFlashUrl(String flashUrl) {
+        this.flashUrl = flashUrl;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+
+    public int getIsPublicUrl() {
+        return isPublicUrl;
+    }
+
+    public void setIsPublicUrl(int isPublicUrl) {
+        this.isPublicUrl = isPublicUrl;
+    }
+
+    public VideoBean getOriginVideo() {
+        return originVideo;
+    }
+
+    public void setOriginVideo(VideoBean originVideo) {
+        this.originVideo = originVideo;
+    }
+
+    public String getCoverImageUrl() {
+        return coverImageUrl;
+    }
+
+    public void setCoverImageUrl(String coverImageUrl) {
+        this.coverImageUrl = coverImageUrl;
+    }
+
+    public int getIsVideo() {
+        return isVideo;
+    }
+
+    public void setIsVideo(int isVideo) {
+        this.isVideo = isVideo;
     }
 }

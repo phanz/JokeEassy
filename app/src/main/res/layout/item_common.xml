@@ -16,7 +16,7 @@
            android:layout_height="35dp"
            android:layout_marginLeft="12dp"
            android:layout_centerVertical="true"
-           android:background="@drawable/default_round_head"/>
+           android:src="@drawable/default_round_head"/>
 
        <TextView
            android:id="@+id/user_name_text"
@@ -46,8 +46,7 @@
         android:paddingRight="12dp"
         android:paddingLeft="12dp"
         android:textSize="18sp"
-        android:textColor="@color/black"
-        android:text="一群男的脱掉裤子，女的脱掉上衣，打一成语。？"/>
+        android:textColor="@color/black"/>
 
     <TextView
         android:id="@+id/category_text"
@@ -55,7 +54,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/content_text"
         android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
         android:layout_marginLeft="12dp"
         android:paddingTop="6dp"
         android:paddingBottom="6dp"
@@ -67,11 +65,138 @@
         android:textSize="11sp"
         android:textColor="@color/blue_light_solid"/>
 
+    <ImageView
+        android:id="@+id/large_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/test"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/category_text"
+        android:visibility="gone"/>
+
+    <GridLayout
+        android:id="@+id/thumb_image_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/large_image"
+        android:paddingRight="12dp"
+        android:paddingLeft="12dp"
+        android:visibility="gone"
+        android:columnCount="3">
+
+        <ImageView
+            android:id="@+id/thumb_image_1"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p1"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_2"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p2"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_3"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p3"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_4"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p4"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_5"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p5"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_6"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p6"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_7"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p7"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_8"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p8"/>
+
+        <ImageView
+            android:id="@+id/thumb_image_9"
+            android:layout_width="@dimen/thumb_image_length"
+            android:layout_height="@dimen/thumb_image_length"
+            android:layout_marginLeft="@dimen/thumb_image_padding"
+            android:layout_marginBottom="@dimen/thumb_image_padding"
+            android:background="@drawable/p8"/>
+
+    </GridLayout>
+
+    <FrameLayout
+        android:id="@+id/video_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/thumb_image_list"
+        android:visibility="visible">
+
+        <VideoView
+            android:id="@+id/video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/video_capture_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:src="@drawable/test"
+            android:visibility="visible"/>
+
+        <ImageView
+            android:id="@+id/video_play_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/video_start_play"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+    </FrameLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:layout_below="@id/category_text">
+        android:layout_below="@id/video_layout">
 
         <ImageView
             android:id="@+id/digg_image"
