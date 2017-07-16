@@ -54,11 +54,13 @@ public class HomeTaleFragment extends Fragment implements SwipeRefreshLayout.OnR
         return view;
     }
 
-
-
     @Override
     public void onRefresh() {
         Toast.makeText(getActivity(),"监测到下拉，开始刷新",Toast.LENGTH_SHORT).show();
+        fetchContent();
+    }
+
+    public void fetchContent(){
         HttpDataRepository.getInstance().getTales(new Observer<JsonResponse>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {

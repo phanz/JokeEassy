@@ -58,6 +58,10 @@ public class HomeVideoFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onRefresh() {
         Toast.makeText(getActivity(),"监测到下拉，开始刷新刷频",Toast.LENGTH_SHORT).show();
+        fetchContent();
+    }
+
+    public void fetchContent(){
         HttpDataRepository.getInstance().getVideos(new Observer<JsonResponse>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -83,9 +87,5 @@ public class HomeVideoFragment extends Fragment implements SwipeRefreshLayout.On
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
-    }
-
-    public void test(){
-
     }
 }

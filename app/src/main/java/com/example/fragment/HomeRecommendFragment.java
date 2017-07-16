@@ -1,102 +1,97 @@
 package com.example.fragment;
 
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Toast;
 
+import com.example.adapter.RecordAdapter;
 import com.example.http.HttpDataRepository;
 import com.example.jokeeassy.R;
 import com.example.model.JsonResponse;
+import com.example.model.Record;
 import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+
+import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 
 
-public class HomeRecommendFragment extends Fragment {
-
+public class HomeRecommendFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
     public static final String TAG = "HomeRecommendFragment";
 
-    public Button mTestBtn;
-    private ImageView mTestImage;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private ListView mVideoListView;
+    private RecordAdapter mRecordAdapter;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mRecordAdapter = new RecordAdapter(context);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home_recommend, container, false);
-        mTestImage = (ImageView) view.findViewById(R.id.test_image);
-        mTestBtn = (Button) view.findViewById(R.id.test_btn);
-        mTestBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                loadImage(mTestImage);
-                /*loadContent();*/
-            }
-        });
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.recommend_swipe_refresh_view);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mVideoListView = (ListView) view.findViewById(R.id.recommend_list_view);
+        mVideoListView.setAdapter(mRecordAdapter);
+        fetchContent();
         return view;
     }
 
-    public void loadContent(){
-        HttpDataRepository.getInstance().getTales(new Observer<JsonResponse>() {
+
+
+    @Override
+    public void onRefresh() {
+        Toast.makeText(getActivity(),"监测到下拉，开始刷新推荐内容",Toast.LENGTH_SHORT).show();
+        fetchContent();
+    }
+
+    public void fetchContent(){
+        HttpDataRepository.getInstance().getRecommends(new Observer<JsonResponse>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
-                Log.d(TAG, "onSubscribe: ");
+
             }
 
             @Override
             public void onNext(@NonNull JsonResponse jsonResponse) {
-                Log.d(TAG, "onNext: ");
-                Gson gson = new Gson();
-                String json = gson.toJson(jsonResponse);
-                Log.d(TAG, "onNext: " + json);
+                List<Record> recordList = jsonResponse.getData().getData();
+
+                mRecordAdapter.addRecords(recordList);
             }
 
             @Override
             public void onError(@NonNull Throwable e) {
-                Log.d(TAG, "onError: ");
+                e.printStackTrace();
+                Log.d(TAG, "onError: " + "推荐页内容加载错误");
+                mSwipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onComplete() {
-                Log.d(TAG, "onComplete: ");
+                mSwipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
-    public void loadImage(final ImageView imageView){
-        String url = "http://p3.pstatp.com/medium/2c6a000553977384ef19";
-        ImageLoader.getInstance().loadImage(url, new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                Log.d(TAG, "onLoadingStarted: ");
-            }
-
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                Log.d(TAG, "onLoadingFailed: ");
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                Log.d(TAG, "onLoadingComplete: ");
-                imageView.setImageBitmap(loadedImage);
-            }
-
-            @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-                Log.d(TAG, "onLoadingCancelled: ");
-            }
-        });
-    }
 
 }
