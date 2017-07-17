@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -58,10 +60,10 @@ public class HomeVideoFragment extends Fragment implements SwipeRefreshLayout.On
     @Override
     public void onRefresh() {
         Toast.makeText(getActivity(),"监测到下拉，开始刷新刷频",Toast.LENGTH_SHORT).show();
-        fetchContent();
+        fetchContent(null);
     }
 
-    public void fetchContent(){
+    public void fetchContent(final ImageView refreshImage){
         HttpDataRepository.getInstance().getVideos(new Observer<JsonResponse>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -73,6 +75,9 @@ public class HomeVideoFragment extends Fragment implements SwipeRefreshLayout.On
                 List<Record> recordList = jsonResponse.getData().getData();
 
                 mRecordAdapter.addRecords(recordList);
+                if(refreshImage != null){
+                    refreshImage.clearAnimation();
+                }
             }
 
             @Override
@@ -80,6 +85,9 @@ public class HomeVideoFragment extends Fragment implements SwipeRefreshLayout.On
                 e.printStackTrace();
                 Log.d(TAG, "onError: " + "视频页内容加载错误");
                 mSwipeRefreshLayout.setRefreshing(false);
+                if(refreshImage != null){
+                    refreshImage.clearAnimation();
+                }
             }
 
             @Override

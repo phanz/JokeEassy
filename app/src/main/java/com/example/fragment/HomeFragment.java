@@ -8,8 +8,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.example.adapter.FragmentAdapter;
+import com.example.http.DataRepository;
+import com.example.http.HttpDataRepository;
 import com.example.jokeeassy.R;
 import com.example.utils.DisplayUtils;
 import com.example.widgets.NavigatorView;
@@ -28,6 +33,8 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     private FragmentAdapter mFragmentAdapter;
     private ViewPager mViewPager;
+
+    private ImageView mRefreshImage;
 
     public HomeFragment(){
         mTitleList = new ArrayList<>();
@@ -78,6 +85,23 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         mViewPager.setAdapter(mFragmentAdapter);
         mViewPager.setCurrentItem(0);
         mViewPager.addOnPageChangeListener(this);
+        mRefreshImage = (ImageView) view.findViewById(R.id.refresh_btn);
+        final Animation animation = AnimationUtils.loadAnimation(getActivity(),R.anim.rotate);
+        mRefreshImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int select = mViewPager.getCurrentItem();
+                mRefreshImage.startAnimation(animation);
+                if(select == 0){
+                    HomeRecommendFragment fragment = (HomeRecommendFragment) mHomeSubFragment.get(select);
+                    fragment.fetchContent(mRefreshImage);
+                }else if(select == 1){
+                    HomeVideoFragment fragment = (HomeVideoFragment) mHomeSubFragment.get(select);
+                    fragment.fetchContent(mRefreshImage);
+                }
+            }
+        });
+
         return view;
     }
 

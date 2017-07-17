@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -61,10 +62,10 @@ public class HomeRecommendFragment extends Fragment implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         Toast.makeText(getActivity(),"监测到下拉，开始刷新推荐内容",Toast.LENGTH_SHORT).show();
-        fetchContent();
+        fetchContent(null);
     }
 
-    public void fetchContent(){
+    public void fetchContent(final ImageView refreshImage){
         HttpDataRepository.getInstance().getRecommends(new Observer<JsonResponse>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -76,6 +77,9 @@ public class HomeRecommendFragment extends Fragment implements SwipeRefreshLayou
                 List<Record> recordList = jsonResponse.getData().getData();
 
                 mRecordAdapter.addRecords(recordList);
+                if(refreshImage!= null){
+                    refreshImage.clearAnimation();
+                }
             }
 
             @Override
@@ -83,6 +87,9 @@ public class HomeRecommendFragment extends Fragment implements SwipeRefreshLayou
                 e.printStackTrace();
                 Log.d(TAG, "onError: " + "推荐页内容加载错误");
                 mSwipeRefreshLayout.setRefreshing(false);
+                if(refreshImage!= null){
+                    refreshImage.clearAnimation();
+                }
             }
 
             @Override
