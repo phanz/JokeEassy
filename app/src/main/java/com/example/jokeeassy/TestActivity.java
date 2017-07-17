@@ -22,7 +22,7 @@ public class TestActivity extends AppCompatActivity {
         mTestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mColorTextView.setCursorRect(null);
+                mColorTextView.setCursorRect(null,1);
             }
         });
     }

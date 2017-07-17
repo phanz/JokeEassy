@@ -14,6 +14,7 @@ import android.view.View;
 
 import com.example.jokeeassy.R;
 import com.example.utils.DisplayUtils;
+import com.example.utils.RectUtils;
 
 
 public class ColorTextView extends View {
@@ -35,7 +36,8 @@ public class ColorTextView extends View {
     private Rect mOriginRect;
     private Rect mCursorRect;
     private int mTextOriginColor = 0xff000000;
-    private int mTextChangeColor = 0xffffffff;
+    //private int mTextChangeColor = 0xffffffff;
+    private int mTextChangeColor = 0xff000000;
 
     public ColorTextView(Context context) {
         super(context);
@@ -123,9 +125,13 @@ public class ColorTextView extends View {
         return result;
     }
 
-    public void setCursorRect(RectF rect){
-        mCursorRect.left = (int)(rect.left - getLeft());
-        mCursorRect.right = (int)(rect.right - getLeft());
+    public void setCursorRect(RectF rect,float scale){
+        RectUtils.rectConvert(rect,mCursorRect,scale);
+        mCursorRect.left -= getLeft();
+        mCursorRect.right -= getLeft();
+
+        mCursorRect.top -= getTop();
+        mCursorRect.bottom -= getTop();
         invalidate();
     }
 
@@ -182,6 +188,17 @@ public class ColorTextView extends View {
 
     public void setText(String text) {
         this.mText = text;
+        requestLayout();
+        invalidate();
+    }
+
+    public int getTextSize() {
+        return mTextSize;
+    }
+
+    public void setTextSize(int mTextSize) {
+        this.mTextSize = mTextSize;
+        mPaint.setTextSize(mTextSize);
         requestLayout();
         invalidate();
     }

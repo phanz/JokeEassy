@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import com.example.adapter.FragmentAdapter;
 import com.example.jokeeassy.R;
 import com.example.utils.DisplayUtils;
-import com.example.widgets.ColorTrackView;
 import com.example.widgets.NavigatorView;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import java.util.List;
 public class HomeFragment extends Fragment implements ViewPager.OnPageChangeListener{
     public static final String TAG = "HomeFragment";
 
-    private static final int TAB_NUM_DEFAULT = 6;
+    private static final int TAB_NUM_DEFAULT = 5;
     private NavigatorView mNavigatorView;
     private List<String> mTitleList;
     private List<Fragment> mHomeSubFragment;
@@ -90,7 +89,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageSelected(int position) {
-        //Log.d(TAG, "onPageSelected: ");
+        Log.d(TAG, "onPageSelected,position: " + position);
     }
 
     @Override

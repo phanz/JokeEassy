@@ -8,6 +8,11 @@
     android:paddingRight="12dp"
     tools:context="com.example.fragment.HomeRecommendFragment">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="推荐页"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/recommend_swipe_refresh_view"
         android:layout_width="match_parent"

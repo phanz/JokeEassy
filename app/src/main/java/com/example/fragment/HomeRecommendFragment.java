@@ -53,7 +53,6 @@ public class HomeRecommendFragment extends Fragment implements SwipeRefreshLayou
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mVideoListView = (ListView) view.findViewById(R.id.recommend_list_view);
         mVideoListView.setAdapter(mRecordAdapter);
-        fetchContent();
         return view;
     }
 
