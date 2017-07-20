@@ -45,12 +45,12 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         mTitleList.add("段子");
         mTitleList.add("订阅");
 
-        HomeRecommendFragment homeRecommendFragment = new HomeRecommendFragment();
-        HomeVideoFragment homeVideoFragment = new HomeVideoFragment();
-        HomeTaleShowFragment homeTaleShowFragment = new HomeTaleShowFragment();
-        HomePictureFragment homePictureFragment = new HomePictureFragment();
-        HomeTaleFragment homeTaleFragment = new HomeTaleFragment();
-        HomeSubscribeFragment homeSubscribeFragment = new HomeSubscribeFragment();
+        HomeContentFragment homeRecommendFragment = new HomeContentFragment().setContentType("-101");
+        HomeContentFragment homeVideoFragment = new HomeContentFragment().setContentType("-104");
+        HomeContentFragment homeTaleShowFragment = new HomeContentFragment();
+        HomeContentFragment homePictureFragment = new HomeContentFragment().setContentType("-103");
+        HomeContentFragment homeTaleFragment = new HomeContentFragment().setContentType("-102");
+        HomeContentFragment homeSubscribeFragment = new HomeContentFragment();
 
         mHomeSubFragment = new ArrayList<>();
         mHomeSubFragment.add(homeRecommendFragment);
@@ -92,13 +92,13 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
             public void onClick(View view) {
                 int select = mViewPager.getCurrentItem();
                 mRefreshImage.startAnimation(animation);
-                if(select == 0){
-                    HomeRecommendFragment fragment = (HomeRecommendFragment) mHomeSubFragment.get(select);
-                    fragment.fetchContent(mRefreshImage);
-                }else if(select == 1){
-                    HomeVideoFragment fragment = (HomeVideoFragment) mHomeSubFragment.get(select);
-                    fragment.fetchContent(mRefreshImage);
-                }
+                HomeContentFragment contentFragment = (HomeContentFragment) mHomeSubFragment.get(select);
+                contentFragment.fetchContent(new HomeContentFragment.OnFetchCompleteListener() {
+                    @Override
+                    public void onFetchComplete(int result) {
+                        mRefreshImage.clearAnimation();
+                    }
+                });
             }
         });
 

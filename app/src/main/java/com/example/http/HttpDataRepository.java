@@ -63,6 +63,7 @@ public class HttpDataRepository {
     public void getTales(Observer<JsonResponse> observer) {
 
         Map<String,String> queryParams = getBaseQueryMap();
+        queryParams.put("content_type", "-102");
         mJokeService.jokeTales(queryParams)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -99,6 +100,16 @@ public class HttpDataRepository {
                 .subscribe(observer);
     }
 
+    public void getContents(String contentType,Observer<JsonResponse> observer) {
+
+        Map<String,String> queryParams = getBaseQueryMap();
+        queryParams.put("content_type",contentType);
+        mJokeService.jokeTales(queryParams)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+
     public void getGitHubInfo(Observer<List<Contributor>> observer) {
 
         mGitHubService.rxContributors("square", "retrofit")
@@ -112,7 +123,6 @@ public class HttpDataRepository {
         Map<String, String> queryParams = new HashMap<>();
         queryParams.put("mpic", "1");
         queryParams.put("essence", "1");
-        queryParams.put("content_type", "-102");
         queryParams.put("message_cursor", "-1");
         queryParams.put("bd_longitude", "121.189395");
         queryParams.put("bd_latitude", "31.049766");

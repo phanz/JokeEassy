@@ -9,12 +9,12 @@
     tools:context="com.example.fragment.HomeRecommendFragment">
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/recommend_swipe_refresh_view"
+        android:id="@+id/content_swipe_refresh_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ListView
-            android:id="@+id/recommend_list_view"
+            android:id="@+id/content_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="#0000"

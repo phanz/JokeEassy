@@ -46,11 +46,17 @@ public class RecordAdapter extends BaseAdapter {
     private Context mContext;
     private LayoutInflater mInflater;
     private DisplayUtils displayUtils;
+    private boolean mScrollState;
 
     public RecordAdapter(Context context){
         mContext = context;
         mRecordList = new ArrayList<>();
         mInflater = LayoutInflater.from(mContext);
+        mScrollState = true;
+    }
+
+    public void setScrollState(boolean scrollState) {
+        mScrollState = scrollState;
     }
 
     public void addRecords(List<Record> recordList){
@@ -173,7 +179,11 @@ public class RecordAdapter extends BaseAdapter {
                 holder.largeImage.setLayoutParams(largeImageParams);
                 holder.largeImage.setVisibility(View.VISIBLE);
                 //loadImage(holder.largeImage,url,largeImageParams);
-                Glide.with(mContext).load(url).into(holder.largeImage);
+                if(mScrollState){//滑动中不加载图片
+                    holder.largeImage.setImageResource(R.drawable.large_loading);
+                }else{
+                    Glide.with(mContext).load(url).into(holder.largeImage);
+                }
 
             }else{
                 holder.largeImage.setVisibility(View.GONE);
@@ -189,7 +199,11 @@ public class RecordAdapter extends BaseAdapter {
                     ViewGroup.LayoutParams thumbParams = holder.thumbImageList[j].getLayoutParams();
                     thumbParams.width = imageBean.getWidth();
                     thumbParams.height = imageBean.getHeight();
-                    loadImage(holder.thumbImageList[j],imageBean.getUrl(),thumbParams);
+                    if(mScrollState){
+                        holder.thumbImageList[j].setImageResource(R.drawable.large_loading);
+                    }else{
+                        loadImage(holder.thumbImageList[j],imageBean.getUrl(),thumbParams);
+                    }
                 }
                 for(int j = thumbImageList.size(); j < holder.thumbImageList.length; j++){
                     holder.thumbImageList[j].setVisibility(View.GONE);
@@ -210,7 +224,11 @@ public class RecordAdapter extends BaseAdapter {
                 videoPlayIcon.setVisibility(View.VISIBLE);
                 final String captureImageUrl = group.getLargeCover().getUrlList().get(0).getUrl();
                 //Glide.with(mContext).load(captureImageUrl).into(holder.videoCaptureImage);
-                loadImage(holder.videoCaptureImage,captureImageUrl,null);
+                if(mScrollState){
+                    holder.videoCaptureImage.setImageResource(R.drawable.large_loading);
+                }else{
+                    loadImage(holder.videoCaptureImage,captureImageUrl,null);
+                }
                 Log.d("GlideListener",captureImageUrl);
                 int width = group.getVideoWidth();
                 int height = group.getVideoHeight();
@@ -301,22 +319,22 @@ public class RecordAdapter extends BaseAdapter {
         });
     }
 
-    private static class RecordHolder{
-        private ImageView avatarImage;
-        private TextView userNameText;
-        private TextView contentText;
-        private TextView categoryText;
+    public static class RecordHolder{
+        public ImageView avatarImage;
+        public TextView userNameText;
+        public TextView contentText;
+        public TextView categoryText;
 
-        private ImageView largeImage;
-        private GridLayout thumbParentLayout;
-        private ImageView[] thumbImageList;
-        private TextView diggCountText;
-        private TextView buryCountText;
-        private TextView commentCountText;
+        public ImageView largeImage;
+        public GridLayout thumbParentLayout;
+        public ImageView[] thumbImageList;
+        public TextView diggCountText;
+        public TextView buryCountText;
+        public TextView commentCountText;
 
-        private FrameLayout videoLayout;
-        private VideoView videoView;
-        private ImageView videoCaptureImage;
-        private ImageView videoPlayIcon;
+        public FrameLayout videoLayout;
+        public VideoView videoView;
+        public ImageView videoCaptureImage;
+        public ImageView videoPlayIcon;
     }
 }
