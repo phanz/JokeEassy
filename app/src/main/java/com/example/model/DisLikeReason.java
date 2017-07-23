@@ -2,11 +2,13 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by phanz on 2017/7/5.
  */
 
-public class DisLikeReason {
+public class DisLikeReason implements Serializable{
 
     @SerializedName("type")
     private int type;

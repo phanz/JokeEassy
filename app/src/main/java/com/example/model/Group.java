@@ -3,6 +3,7 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import java.util.Map;
  * Created by phanz on 2017/7/5.
  */
 
-public class Group {
+public class Group implements Serializable{
     @SerializedName("text")
     private String text;
     @SerializedName("neihan_hot_start_time")

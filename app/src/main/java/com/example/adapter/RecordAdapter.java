@@ -1,10 +1,12 @@
 package com.example.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +25,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.example.jokeeassy.CommentActivity;
 import com.example.jokeeassy.R;
 import com.example.model.Group;
 import com.example.model.ImageBean;
@@ -105,6 +108,9 @@ public class RecordAdapter extends BaseAdapter {
             ImageView videoCaptureImage = (ImageView) view.findViewById(R.id.video_capture_image);
             ImageView playIcon = (ImageView) view.findViewById(R.id.video_play_icon);
 
+            ImageView diggImage = (ImageView) view.findViewById(R.id.digg_image);
+            ImageView buryImage = (ImageView) view.findViewById(R.id.bury_image);
+            ImageView commentImage = (ImageView) view.findViewById(R.id.comment_image);
             TextView diggCountText = (TextView) view.findViewById(R.id.digg_count_text);
             TextView buryCountText = (TextView) view.findViewById(R.id.bury_count_text);
             TextView commentCountText = (TextView) view.findViewById(R.id.comment_count_text);
@@ -132,6 +138,9 @@ public class RecordAdapter extends BaseAdapter {
             holder.videoCaptureImage = videoCaptureImage;
             holder.videoPlayIcon = playIcon;
 
+            holder.diggImage = diggImage;
+            holder.buryImage = buryImage;
+            holder.commentImage = commentImage;
             holder.diggCountText = diggCountText;
             holder.buryCountText = buryCountText;
             holder.commentCountText = commentCountText;
@@ -142,7 +151,7 @@ public class RecordAdapter extends BaseAdapter {
             holder = (RecordHolder) view.getTag();
         }
         Record record = mRecordList.get(i);
-        Group group = record.getGroup();
+        final Group group = record.getGroup();
         if(group == null){
             Log.e(TAG,"Group为空：" + record.toString());
         }else{
@@ -274,10 +283,24 @@ public class RecordAdapter extends BaseAdapter {
                     }
                 });
 
+
+
             }else{
                 holder.videoLayout.setVisibility(View.GONE);
                 holder.videoView.setVisibility(View.GONE);
             }
+
+            holder.commentImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent commentIntent = new Intent(mContext, CommentActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("group_id",group.getGroupId() + "");
+                    bundle.putSerializable("group",group);
+                    commentIntent.putExtras(bundle);
+                    mContext.startActivity(commentIntent);
+                }
+            });
 
 
         }
@@ -328,13 +351,20 @@ public class RecordAdapter extends BaseAdapter {
         public ImageView largeImage;
         public GridLayout thumbParentLayout;
         public ImageView[] thumbImageList;
-        public TextView diggCountText;
-        public TextView buryCountText;
-        public TextView commentCountText;
 
         public FrameLayout videoLayout;
         public VideoView videoView;
         public ImageView videoCaptureImage;
         public ImageView videoPlayIcon;
+
+        public ImageView diggImage;
+        public ImageView buryImage;
+        public ImageView commentImage;
+
+        public TextView diggCountText;
+        public TextView buryCountText;
+        public TextView commentCountText;
+
+
     }
 }

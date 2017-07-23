@@ -21,7 +21,7 @@ import com.example.http.HttpDataRepository;
 import com.example.jokeeassy.R;
 import com.example.model.Group;
 import com.example.model.ImageBean;
-import com.example.model.JsonResponse;
+import com.example.model.ContentResponse;
 import com.example.model.Record;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
@@ -135,14 +135,14 @@ public class HomeContentFragment extends Fragment
     }
 
     private void getContent(String contentType, final OnFetchCompleteListener listener){
-        HttpDataRepository.getInstance().getContents(contentType,new Observer<JsonResponse>() {
+        HttpDataRepository.getInstance().getContents(contentType,new Observer<ContentResponse>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
 
             }
 
             @Override
-            public void onNext(@NonNull JsonResponse jsonResponse) {
+            public void onNext(@NonNull ContentResponse jsonResponse) {
                 List<Record> recordList = jsonResponse.getData().getData();
                 mRecordAdapter.addRecords(recordList);
                 if(listener != null){

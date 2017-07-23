@@ -15,5 +15,8 @@
     <color name="titleBar">#DCD9CF</color>
     <color name="bg_light_gray">#F2F2F2</color>
     <color name="tab_cursor_bg">#C3BFB0</color>
+    
+    <color name="bg_comment">#EEEEEE</color>
+    <color name="bg_share_comment">#4C4034</color>
 
 </resources>

@@ -2,13 +2,14 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by phanz on 2017/7/9.
  */
 
-public class ImageBean {
+public class ImageBean implements Serializable{
     @SerializedName("url")
     private String url;
     @SerializedName("url_list")

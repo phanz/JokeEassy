@@ -6,11 +6,11 @@ import com.google.gson.annotations.SerializedName;
  * Created by phanz on 2017/7/6.
  */
 
-public class JsonResponse {
+public class ContentResponse {
     @SerializedName("message")
     private String message;
     @SerializedName("data")
-    private RefreshContent data;
+    private ContentSet data;
 
     public String getMessage() {
         return message;
@@ -20,11 +20,11 @@ public class JsonResponse {
         this.message = message;
     }
 
-    public RefreshContent getData() {
+    public ContentSet getData() {
         return data;
     }
 
-    public void setData(RefreshContent data) {
+    public void setData(ContentSet data) {
         this.data = data;
     }
 }

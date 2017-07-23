@@ -8,7 +8,7 @@ import java.util.List;
  * Created by phanz on 2017/7/6.
  */
 
-public class RefreshContent {
+public class ContentSet {
     @SerializedName("has_more")
     private boolean hasMore;
 
