@@ -1,6 +1,8 @@
 package com.example.model;
 
-public class Contributor {
+import java.io.Serializable;
+
+public class Contributor implements Serializable{
     private String login;
     private int id;
     private int contributions;

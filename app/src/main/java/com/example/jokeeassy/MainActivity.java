@@ -6,18 +6,27 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.location.Poi;
 import com.example.fragment.DiscoveryFragment;
 import com.example.fragment.HomeFragment;
 import com.example.fragment.MessageFragment;
 import com.example.fragment.ReviewFragment;
+import com.example.utils.MapUtils;
 import com.example.widget.TitleBar;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,9 +63,17 @@ public class MainActivity extends FragmentActivity {
         ImageLoaderConfiguration configuration = ImageLoaderConfiguration.createDefault(this);
         ImageLoader.getInstance().init(configuration);
 
+        MapUtils.getInstance(this).registerLocationListener(locationListener);
+
         ButterKnife.bind(this);
         TitleBar titleBar = (TitleBar) findViewById(R.id.title_bar);
         titleBar.setLeftImageResource(R.drawable.ic_discovery_default_avatar);
+        titleBar.setLeftClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MapUtils.getInstance(MainActivity.this).startLocation();
+            }
+        });
         titleBar.setTitleBackground(R.drawable.ic_neihan_logo);
         titleBar.setDividerColor(android.R.color.black);
         titleBar.addAction(new TitleBar.ImageAction(R.drawable.ic_publish) {
@@ -116,4 +133,20 @@ public class MainActivity extends FragmentActivity {
             transaction.replace(R.id.fl_content,fragment).commit();
         }
     }
+
+    private BDLocationListener locationListener =  new BDLocationListener() {
+        @Override
+        public void onReceiveLocation(BDLocation bdLocation) {
+
+            String city = bdLocation.getCity();
+            Log.d(TAG, "onReceiveLocation: " + city);
+            MapUtils.getInstance(MainActivity.this).stopLocation();
+        }
+
+        @Override
+        public void onConnectHotSpotMessage(String s, int i) {
+
+        }
+    };
+
 }

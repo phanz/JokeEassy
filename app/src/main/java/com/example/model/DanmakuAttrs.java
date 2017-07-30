@@ -2,11 +2,13 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by phanz on 2017/7/15.
  */
 
-public class DanmakuAttrs {
+public class DanmakuAttrs implements Serializable{
     @SerializedName("allow_show_danmaku")
     private int allowShowDanmaku;
     @SerializedName("all_send_danmaku")

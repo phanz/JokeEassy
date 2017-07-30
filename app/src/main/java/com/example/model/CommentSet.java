@@ -2,13 +2,14 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by phanz on 2017/7/23.
  */
 
-public class CommentSet {
+public class CommentSet implements Serializable{
     @SerializedName("top_comments")
     private List<Comment> topComments;
     @SerializedName("recent_comments")

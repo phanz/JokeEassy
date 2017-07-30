@@ -2,13 +2,14 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by phanz on 2017/7/6.
  */
 
-public class Record {
+public class Record implements Serializable{
 
     @SerializedName("group")
     private Group group;

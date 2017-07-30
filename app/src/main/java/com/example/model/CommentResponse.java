@@ -2,11 +2,13 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by phanz on 2017/7/23.
  */
 
-public class CommentResponse {
+public class CommentResponse implements Serializable{
     @SerializedName("total_number")
     private String totalNumber;
     @SerializedName("new_comment")

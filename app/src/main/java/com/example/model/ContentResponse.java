@@ -2,11 +2,13 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by phanz on 2017/7/6.
  */
 
-public class ContentResponse {
+public class ContentResponse implements Serializable{
     @SerializedName("message")
     private String message;
     @SerializedName("data")

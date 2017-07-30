@@ -2,13 +2,14 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by phanz on 2017/7/9.
  */
 
-public class VideoBean {
+public class VideoBean implements Serializable{
     @SerializedName("url_list")
     private List<UrlBean> urlList;
     @SerializedName("uri")

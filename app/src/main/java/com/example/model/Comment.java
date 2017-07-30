@@ -2,11 +2,13 @@ package com.example.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by phanz on 2017/7/6.
  */
 
-public class Comment {
+public class Comment implements Serializable{
     @SerializedName("text")
     private String text;
     @SerializedName("create_time")
