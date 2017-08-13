@@ -23,7 +23,6 @@ import java.util.List;
 public class HomeFragment extends Fragment implements ViewPager.OnPageChangeListener{
     public static final String TAG = "HomeFragment";
 
-    private static final int TAB_NUM_DEFAULT = 5;
     private NavigatorView mNavigatorView;
     private List<String> mTitleList;
     private List<Fragment> mHomeSubFragment;
@@ -59,7 +58,6 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -76,6 +74,8 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
                 .setTabList(mTitleList)
                 .setTabHeight(45)
                 .setTextSize(16)
+                .setTextOriginColor(0xff000000)
+                .setTextChangeColor(0xffffffff)
                 .setCursorScale(0.8f)
                 .setCursorRadius(16)
                 .setTabList(mTitleList)
@@ -91,7 +91,6 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         FragmentManager fm = getChildFragmentManager();
         mFragmentAdapter = new FragmentAdapter(fm,mHomeSubFragment);
         mViewPager.setAdapter(mFragmentAdapter);
-        mViewPager.setCurrentItem(1);
         mViewPager.addOnPageChangeListener(this);
 
         mRefreshImage = (ImageView) view.findViewById(R.id.refresh_btn);
@@ -116,8 +115,8 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        //Log.d(TAG, "onPageScrolled: \t position:" + position + "\tpositionOffset:" + positionOffset);
         mNavigatorView.setCursorPosition(position,positionOffset);
-
     }
 
     @Override

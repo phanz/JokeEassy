@@ -3,6 +3,7 @@ package com.example.widgets;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.jokeeassy.R;
 
@@ -26,7 +28,7 @@ import java.util.List;
  * Created by phanz on 2017/7/1.
  */
 
-public class NavigatorView extends RelativeLayout implements View.OnTouchListener{
+public class NavigatorView extends RelativeLayout{
 
     public static final String TAG = "NavigatorView";
 
@@ -46,6 +48,7 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
     private int mTextChangeColor;
     private OnTabClickListener mOnTabClickListener;
 
+    private float mPreTotalPosition;//记录上一个position
     private RectF mCursorRectF;
     private RectF mCursorScaleRect;
 
@@ -63,6 +66,7 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
 
     public void init(Context context){
         setWillNotDraw(false);//ViewGroup本身不含内容，默认为透明的，不触发onDraw操作，需要手动开启
+        mPreTotalPosition = -1;//默认给0会导致setCursorPosition的currentTotalPosition == mPreTotalPosition
         mCursorRectF = new RectF(0,0,0,0);
         mCursorScaleRect = new RectF();
 
@@ -77,8 +81,6 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
         addView(mTabLayout);
 
         mGestureDetector = new GestureDetector(mContext,new SimpleGestureListener());
-        setLongClickable(true);
-        setOnTouchListener(this);
     }
 
     private void setTabList(List<String> tabList){
@@ -109,32 +111,29 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
             });
 
         }
-        setCurrentPosition(1);
     }
 
-    private float preTotalPosition = 0;
     public void setCursorPosition(int position, float positionOffset){
         float currentTotalPosition = position + positionOffset;
 
-        if(currentTotalPosition == preTotalPosition) return;
+        if(currentTotalPosition == mPreTotalPosition) return;
 
-        boolean isScrollRight = position + positionOffset > preTotalPosition;
+        boolean isScrollRight = position + positionOffset > mPreTotalPosition;
 
         if(isScrollRight && (mCursorRectF.right >= mScreenWidth)){//向右将要滑出屏幕
             int layoutOffset = (int)((currentTotalPosition + 1 - mTabCount) * mTabWidth);
             mTabLayout.scrollTo(layoutOffset,0);
 
-        }else if(!isScrollRight && mCursorRectF.left == 0){//向左将要滑出屏幕
-            float layoutOffset = currentTotalPosition * mTabWidth;
-            mTabLayout.scrollTo((int)layoutOffset,0);
-
-        }else{
-            float cursorRectX = currentTotalPosition * mTabWidth - mTabLayout.getScrollX();
-            mCursorRectF.left = cursorRectX ;
-            mCursorRectF.right = mCursorRectF.left + mTabWidth;
+        }else if(!isScrollRight && mCursorRectF.left <= 0){//向左将要滑出屏幕
+            int layoutOffset = (int)(currentTotalPosition * mTabWidth);
+            mTabLayout.scrollTo(layoutOffset,0);
         }
 
-        preTotalPosition = position + positionOffset;
+        float cursorRectX = currentTotalPosition * mTabWidth - mTabLayout.getScrollX();
+        mCursorRectF.left = cursorRectX ;
+        mCursorRectF.right = mCursorRectF.left + mTabWidth;
+
+        mPreTotalPosition = position + positionOffset;
 
         ColorTextView textView = (ColorTextView) mTabLayout.getChildAt(position);
         textView.setPositionOffset(positionOffset,1,mCursorScale);
@@ -196,7 +195,7 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
         mCursorScale = params.mCursorScale;
         mCursorRadius = params.mCursorRadius;
         mTextSize = params.mTextSize;
-        mTextOriginColor = params.mTextColor;
+        mTextOriginColor = params.mTextOriginColor;
         mTextChangeColor = params.mTextChangeColor;
         setTabList(params.mTabList);
         mOnTabClickListener = params.mOnTabClickListener;
@@ -216,8 +215,8 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
     }
 
     @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        return mGestureDetector.onTouchEvent(motionEvent);
+    public boolean onTouchEvent(MotionEvent event) {
+        return mGestureDetector.onTouchEvent(event);
     }
 
     @Override
@@ -252,18 +251,6 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
     private class SimpleGestureListener extends GestureDetector.SimpleOnGestureListener{
 
         @Override
-        public boolean onDown(MotionEvent e) {
-            return super.onDown(e);
-        }
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            Log.d(TAG, "onFling: ");
-            //return false;
-            return super.onFling(e1, e2, velocityX, velocityY);
-        }
-
-        @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
             int lastIndex = mTabLayout.getChildCount() - 1;
@@ -285,6 +272,117 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
 
             return true;
         }
+    }
+
+    public static class ColorTextView extends TextView {
+
+        public static final String TAG = "ColorTextView";
+
+        private Paint mPaint;
+
+        private int mTextStartX;
+        private int mTextStartY;
+
+        private Rect mCursorRect;
+        private int mTextOriginColor;
+        private int mTextChangeColor;
+
+        public ColorTextView(Context context) {
+            super(context);
+            init();
+        }
+
+        public ColorTextView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            init();
+        }
+
+        private void init(){
+            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mTextOriginColor = 0xff000000;
+            mTextChangeColor = 0xffffffff;
+            mCursorRect = new Rect();
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            measureText();
+
+            super.onMeasure(widthMeasureSpec,heightMeasureSpec);
+        }
+
+        private void measureText() {
+            mPaint.setTextSize(getTextSize());
+
+            String text = getText().toString();
+            int textWidth = (int) mPaint.measureText(text);
+            mTextStartX = getMeasuredWidth() / 2 - textWidth / 2;
+            mTextStartY = getMeasuredHeight() / 2 - (int)((mPaint.descent() + mPaint.ascent()) / 2);
+        }
+
+        public void setPositionOffset(float positionOffsetStart,float positionOffsetEnd,float scale){
+            float scaleOffsetWidth = (1 - scale) / 2 * getWidth();
+            float scaleOffsetHeight = (1 - scale) / 2 * getHeight();
+            mCursorRect.left = (int)(positionOffsetStart * getWidth() + scaleOffsetWidth);
+            mCursorRect.right = (int)(positionOffsetEnd * getWidth() - scaleOffsetWidth);
+
+            mCursorRect.top -= (int)(getTop() + scaleOffsetHeight);
+            mCursorRect.bottom -= (int)(getTop() - scaleOffsetHeight);
+            invalidate();
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            //super.onDraw(canvas);
+            drawTextRect(canvas, mCursorRect);
+        }
+
+        private void drawTextRect(Canvas canvas,Rect cursorRect){
+
+            int textLeft = mTextStartX;
+            int textRight = mTextStartX + (int)mPaint.measureText(getText().toString());
+
+            if(cursorRect.right <= textLeft || cursorRect.left >= textRight){//不相交
+                drawColorText(canvas, mTextOriginColor,textLeft,textRight);
+
+            }else if(cursorRect.right <= textRight){//左交
+                drawColorText(canvas,mTextChangeColor,textLeft,cursorRect.right);
+                drawColorText(canvas, mTextOriginColor,cursorRect.right,textRight);
+
+            }else if(cursorRect.left > textLeft && cursorRect.right < textRight){//内含
+                drawColorText(canvas, mTextOriginColor,textLeft,cursorRect.left);
+                drawColorText(canvas,mTextChangeColor,cursorRect.left,cursorRect.right);
+                drawColorText(canvas, mTextOriginColor,cursorRect.right,textRight);
+
+            }else if(cursorRect.left < textLeft && cursorRect.right > textRight){//外围
+                drawColorText(canvas,mTextChangeColor,textLeft,textRight);
+
+            }else if(cursorRect.left <= textRight){ //右交
+                drawColorText(canvas, mTextOriginColor,textLeft,cursorRect.left);
+                drawColorText(canvas,mTextChangeColor,cursorRect.left,textRight);
+            }else{
+                Log.d(TAG,"状态判定有遗漏");
+            }
+
+        }
+
+        private void drawColorText(Canvas canvas, int color, int startX, int endX) {
+            mPaint.setColor(color);
+            mPaint.setStyle(Paint.Style.STROKE);
+            canvas.save(Canvas.CLIP_SAVE_FLAG);
+            canvas.clipRect(startX, 0, endX, getMeasuredHeight());// left, top,
+            canvas.drawText(getText().toString(), mTextStartX,mTextStartY, mPaint);
+            canvas.restore();
+        }
+
+        public void setTextOriginColor(int textOriginColor){
+            mTextOriginColor = textOriginColor;
+        }
+
+        public void setTextChangeColor(int textChangeColor){
+            mTextChangeColor = textChangeColor;
+        }
+
     }
 
     public static class NavigatorViewBuilder{
@@ -330,7 +428,7 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
         }
 
         public NavigatorViewBuilder setTextOriginColor(int textColor){
-            params.mTextColor = textColor;
+            params.mTextOriginColor = textColor;
             return this;
         }
 
@@ -363,7 +461,6 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
             navigatorView.apply(params);
             return navigatorView;
         }
-
     }
 
     private static class NavigatorParams{
@@ -375,7 +472,7 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
         float mCursorScale = 0.8f;
         float mCursorRadius = 16;
         int mTextSize = 16;//sp
-        int mTextColor = 0xff000000;
+        int mTextOriginColor = 0xff000000;
         int mTextChangeColor = 0xffffffff;
         OnTabClickListener mOnTabClickListener;
         List<String> mTabList = new ArrayList<>();
