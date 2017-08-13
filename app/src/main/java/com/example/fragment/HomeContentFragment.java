@@ -16,7 +16,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.adapter.RecordAdapter;
+import com.example.adapter.ContentAdapter;
 import com.example.http.HttpDataRepository;
 import com.example.jokeeassy.R;
 import com.example.model.Group;
@@ -40,7 +40,7 @@ public class HomeContentFragment extends Fragment
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private ListView mContentListView;
-    private RecordAdapter mRecordAdapter;
+    private ContentAdapter mContentAdapter;
     private String mContentType;
 
     public HomeContentFragment(){
@@ -50,7 +50,7 @@ public class HomeContentFragment extends Fragment
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mRecordAdapter = new RecordAdapter(context);
+        mContentAdapter = new ContentAdapter(context);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class HomeContentFragment extends Fragment
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_swipe_refresh_view);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mContentListView = (ListView) view.findViewById(R.id.content_list_view);
-        mContentListView.setAdapter(mRecordAdapter);
+        mContentListView.setAdapter(mContentAdapter);
         mContentListView.setOnScrollListener(this);
         return view;
     }
@@ -70,12 +70,12 @@ public class HomeContentFragment extends Fragment
     public void onScrollStateChanged(AbsListView absListView, int scrollState) {
         switch (scrollState){
             case AbsListView.OnScrollListener.SCROLL_STATE_IDLE://停止滚动
-                mRecordAdapter.setScrollState(false);
+                mContentAdapter.setScrollState(false);
                 int count = absListView.getChildCount();//获取屏幕中的视图个数
                 for(int i = 0; i < count; i++){
                     View childView = absListView.getChildAt(i);
                     int position = absListView.getPositionForView(childView);
-                    Record record = (Record) mRecordAdapter.getItem(position);
+                    Record record = (Record) mContentAdapter.getItem(position);
                     Group group = record.getGroup();
                     if(group != null && group.getLargeImage() != null){
                         ImageBean imageBean = group.getLargeImage();
@@ -87,7 +87,7 @@ public class HomeContentFragment extends Fragment
                         List<ImageBean> thumbImageList = group.getThumbImageList();
                         for(int j = 0; j < thumbImageList.size(); j++){
                             ImageBean imageBean = thumbImageList.get(j);
-                            RecordAdapter.RecordHolder holder = (RecordAdapter.RecordHolder)childView.getTag();
+                            ContentAdapter.RecordHolder holder = (ContentAdapter.RecordHolder)childView.getTag();
                             ViewGroup.LayoutParams thumbParams = holder.thumbImageList[j].getLayoutParams();
                             thumbParams.width = imageBean.getWidth();
                             thumbParams.height = imageBean.getHeight();
@@ -105,11 +105,11 @@ public class HomeContentFragment extends Fragment
                 break;
 
             case AbsListView.OnScrollListener.SCROLL_STATE_FLING://滚动做出了抛的动作
-                mRecordAdapter.setScrollState(true);
+                mContentAdapter.setScrollState(true);
                 break;
 
             case AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL://正在滚动
-                mRecordAdapter.setScrollState(true);
+                mContentAdapter.setScrollState(true);
                 break;
         }
     }
@@ -144,7 +144,7 @@ public class HomeContentFragment extends Fragment
             @Override
             public void onNext(@NonNull ContentResponse jsonResponse) {
                 List<Record> recordList = jsonResponse.getData().getData();
-                mRecordAdapter.addRecords(recordList);
+                mContentAdapter.addRecords(recordList);
                 if(listener != null){
                     listener.onFetchComplete(0);
                 }

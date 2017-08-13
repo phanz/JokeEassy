@@ -47,6 +47,7 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
     public static final String TAG = "CommentActivity";
 
     private ScrollView mContentScrollView;
+    private ImageView mHotLabelImage;
     private ImageView mUserAvatarImage;
     private TextView mUserNameText;
     private TextView mContentText;
@@ -56,6 +57,10 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
     private ImageView mPlayIcon;
     private ImageView mVideoCaptureImage;
     private VideoView mVideoView;
+
+    private TextView mHotCommentLabel;
+    private ListView mHotCommentList;
+
     private TextView mDiggCountText;
     private TextView mBuryCountText;
     private TextView mCommentCountText;
@@ -107,6 +112,8 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
 
         mContentScrollView = (ScrollView) findViewById(R.id.detail_layout);
         RelativeLayout contentLayout = (RelativeLayout) findViewById(R.id.item_content) ;
+
+        mHotLabelImage = (ImageView) contentLayout.findViewById(R.id.hot_label_image);
         mUserAvatarImage = (ImageView) contentLayout.findViewById(R.id.user_avatar_image);
         mUserNameText = (TextView) contentLayout.findViewById(R.id.user_name_text);
         mContentText = (TextView) contentLayout.findViewById(R.id.content_text);
@@ -117,6 +124,10 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         mPlayIcon = (ImageView) contentLayout.findViewById(R.id.video_play_icon);
         mVideoCaptureImage = (ImageView) contentLayout.findViewById(R.id.video_capture_image);
         mVideoView = (VideoView) contentLayout.findViewById(R.id.video_view);
+
+        mHotCommentLabel = (TextView) contentLayout.findViewById(R.id.hot_comment_label);
+        mHotCommentList = (ListView) contentLayout.findViewById(R.id.hot_comment_list);
+
         mDiggCountText = (TextView) contentLayout.findViewById(R.id.digg_count_text);
         mBuryCountText = (TextView) contentLayout.findViewById(R.id.bury_count_text);
         mCommentCountText = (TextView) contentLayout.findViewById(R.id.comment_count_text);
@@ -185,6 +196,8 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
             mVideoView.setVisibility(View.GONE);
         }
 
+        boolean isHot = mGroup.getStatusDesc().equals("热门投稿");
+        mHotLabelImage.setVisibility(isHot ? View.VISIBLE : View.GONE);
         Glide.with(this).load(mGroup.getUser().getAvatarUrl()).into(mUserAvatarImage);
         mUserNameText.setText(mGroup.getUser().getName());
         mContentText.setText(mGroup.getText());

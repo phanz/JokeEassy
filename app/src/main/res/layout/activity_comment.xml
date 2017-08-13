@@ -7,15 +7,8 @@
     android:background="@color/bg_comment"
     tools:context="com.example.jokeeassy.CommentActivity">
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="@drawable/divider"/>
-
     <com.example.widget.TitleBar
         android:id="@+id/title_bar"
-        android:layout_below="@id/divider"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="@color/titleBar" />
@@ -47,18 +40,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/title_bar"
-        android:layout_above="@id/comment_input_layout"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp">
+        android:layout_above="@id/comment_input_layout">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="12dp"
             android:orientation="vertical">
 
             <include
                 android:id="@+id/item_content"
-                layout="@layout/item_common"
+                layout="@layout/item_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
@@ -67,19 +59,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 android:text="热门评论(2)" />
 
             <com.example.widgets.NoScrollListView
                 android:id="@+id/top_comment_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="8dp"
+                android:divider="@drawable/item_divider_line"
+                android:dividerHeight="2px"/>
 
             <TextView
                 android:id="@+id/recent_text"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="5dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
                 android:text="新鲜评论(573)"/>
 
             <com.example.widgets.NoScrollListView
@@ -87,7 +85,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:overScrollMode="never"/>
+                android:overScrollMode="never"
+                android:divider="@drawable/item_divider_line"
+                android:dividerHeight="2px"/>
         </LinearLayout>
     </ScrollView>
 

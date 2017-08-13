@@ -13,10 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.example.adapter.FragmentAdapter;
-import com.example.http.DataRepository;
-import com.example.http.HttpDataRepository;
 import com.example.jokeeassy.R;
-import com.example.utils.DisplayUtils;
 import com.example.widgets.NavigatorView;
 
 import java.util.ArrayList;
@@ -71,20 +68,32 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         mViewPager = (ViewPager) view.findViewById(R.id.recommend_view_pager);
 
         mNavigatorView = (NavigatorView) view.findViewById(R.id.tab_list_layout);
-        mNavigatorView.setTabCount(TAB_NUM_DEFAULT);
-        mNavigatorView.setTabList(mTitleList);
-        mNavigatorView.setOnTabListener(new NavigatorView.OnTabClickListener() {
-            @Override
-            public void onTabClick(int index) {
-                mViewPager.setCurrentItem(index);
-            }
-        });
+
+        NavigatorView.NavigatorViewBuilder navigatorViewBuilder
+                = new NavigatorView.NavigatorViewBuilder(getContext());
+
+        navigatorViewBuilder.setTabCount(5)
+                .setTabList(mTitleList)
+                .setTabHeight(45)
+                .setTextSize(16)
+                .setCursorScale(0.8f)
+                .setCursorRadius(16)
+                .setTabList(mTitleList)
+                .setOnTabListener(new NavigatorView.OnTabClickListener() {
+                    @Override
+                    public void onTabClick(int index) {
+                        mViewPager.setCurrentItem(index,false);
+                    }
+                })
+                .setRightImage(R.drawable.ic_topbar_arrow)
+                .apply(mNavigatorView);
 
         FragmentManager fm = getChildFragmentManager();
         mFragmentAdapter = new FragmentAdapter(fm,mHomeSubFragment);
         mViewPager.setAdapter(mFragmentAdapter);
-        mViewPager.setCurrentItem(0);
+        mViewPager.setCurrentItem(1);
         mViewPager.addOnPageChangeListener(this);
+
         mRefreshImage = (ImageView) view.findViewById(R.id.refresh_btn);
         final Animation animation = AnimationUtils.loadAnimation(getActivity(),R.anim.rotate);
         mRefreshImage.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +122,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
 
     @Override
     public void onPageSelected(int position) {
-        Log.d(TAG, "onPageSelected,position: " + position);
+        //Log.d(TAG, "onPageSelected,position: " + position);
     }
 
     @Override

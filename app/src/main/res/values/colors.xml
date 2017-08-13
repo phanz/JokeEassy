@@ -7,6 +7,7 @@
     <color name="white">#FFF</color>
     <color name="black">#000</color>
     <color name="blue">#00F</color>
+    <color name="red">#F00</color>
 
     <color name="blue_light_stroke">#80D1EB</color>
     <color name="blue_light_solid">#39AFD4</color>
@@ -18,5 +19,7 @@
     
     <color name="bg_comment">#EEEEEE</color>
     <color name="bg_share_comment">#4C4034</color>
+    <color name="bg_red">#FE819F</color>
+    <color name="bg_gray">#F8F8F8</color>
 
 </resources>

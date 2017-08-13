@@ -3,11 +3,9 @@ package com.example.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,17 +14,15 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.jokeeassy.CommentActivity;
 import com.example.jokeeassy.R;
+import com.example.model.Comment;
 import com.example.model.Group;
 import com.example.model.ImageBean;
 import com.example.model.Record;
@@ -42,20 +38,19 @@ import java.util.List;
  * Created by phanz on 2017/7/8.
  */
 
-public class RecordAdapter extends BaseAdapter {
-    private static final String TAG = "RecordAdapter";
+public class ContentAdapter extends BaseAdapter {
+    private static final String TAG = "ContentAdapter";
 
     private List<Record> mRecordList;
     private Context mContext;
     private LayoutInflater mInflater;
-    private DisplayUtils displayUtils;
     private boolean mScrollState;
 
-    public RecordAdapter(Context context){
+    public ContentAdapter(Context context){
         mContext = context;
         mRecordList = new ArrayList<>();
         mInflater = LayoutInflater.from(mContext);
-        mScrollState = true;
+        mScrollState = false;
     }
 
     public void setScrollState(boolean scrollState) {
@@ -86,7 +81,8 @@ public class RecordAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         RecordHolder holder = null;
         if(view == null){
-            view = mInflater.inflate(R.layout.item_common,viewGroup,false);
+            view = mInflater.inflate(R.layout.item_content,viewGroup,false);
+            ImageView hotLabelImage = (ImageView) view.findViewById(R.id.hot_label_image);
             ImageView avatarImage = (ImageView) view.findViewById(R.id.user_avatar_image);
             TextView userNameText = (TextView) view.findViewById(R.id.user_name_text);
             TextView contentText = (TextView) view.findViewById(R.id.content_text);
@@ -108,14 +104,15 @@ public class RecordAdapter extends BaseAdapter {
             ImageView videoCaptureImage = (ImageView) view.findViewById(R.id.video_capture_image);
             ImageView playIcon = (ImageView) view.findViewById(R.id.video_play_icon);
 
-            ImageView diggImage = (ImageView) view.findViewById(R.id.digg_image);
-            ImageView buryImage = (ImageView) view.findViewById(R.id.bury_image);
-            ImageView commentImage = (ImageView) view.findViewById(R.id.comment_image);
+            TextView hotCommentLabel = (TextView) view.findViewById(R.id.hot_comment_label);
+            ListView hotCommentList = (ListView) view.findViewById(R.id.hot_comment_list);
+
             TextView diggCountText = (TextView) view.findViewById(R.id.digg_count_text);
             TextView buryCountText = (TextView) view.findViewById(R.id.bury_count_text);
             TextView commentCountText = (TextView) view.findViewById(R.id.comment_count_text);
 
             holder = new RecordHolder();
+            holder.hotLabelImage = hotLabelImage;
             holder.avatarImage = avatarImage;
             holder.userNameText = userNameText;
             holder.contentText = contentText;
@@ -138,9 +135,9 @@ public class RecordAdapter extends BaseAdapter {
             holder.videoCaptureImage = videoCaptureImage;
             holder.videoPlayIcon = playIcon;
 
-            holder.diggImage = diggImage;
-            holder.buryImage = buryImage;
-            holder.commentImage = commentImage;
+            holder.hotCommentLabel = hotCommentLabel;
+            holder.hotCommentList = hotCommentList;
+
             holder.diggCountText = diggCountText;
             holder.buryCountText = buryCountText;
             holder.commentCountText = commentCountText;
@@ -155,6 +152,8 @@ public class RecordAdapter extends BaseAdapter {
         if(group == null){
             Log.e(TAG,"Group为空：" + record.toString());
         }else{
+            boolean isHot = group.getStatusDesc().equals("热门投稿");
+            holder.hotLabelImage.setVisibility(isHot ? View.VISIBLE : View.GONE);
             holder.avatarImage.setImageResource(R.drawable.default_round_head);
             holder.userNameText.setText(group.getUser().getName());
             holder.contentText.setText(group.getContent());
@@ -290,7 +289,20 @@ public class RecordAdapter extends BaseAdapter {
                 holder.videoView.setVisibility(View.GONE);
             }
 
-            holder.commentImage.setOnClickListener(new View.OnClickListener() {
+
+            if(group.getHasComments() > 0){
+                holder.hotCommentLabel.setVisibility(View.VISIBLE);
+                holder.hotCommentList.setVisibility(View.VISIBLE);
+                List<Comment> commentList = record.getComments();
+                ContentHotCommentAdapter commentAdapter = new ContentHotCommentAdapter(mContext);
+                commentAdapter.setCommentList(commentList);
+                holder.hotCommentList.setAdapter(commentAdapter);
+            }else{
+                holder.hotCommentLabel.setVisibility(View.GONE);
+                holder.hotCommentList.setVisibility(View.GONE);
+            }
+
+            holder.commentCountText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent commentIntent = new Intent(mContext, CommentActivity.class);
@@ -343,6 +355,7 @@ public class RecordAdapter extends BaseAdapter {
     }
 
     public static class RecordHolder{
+        public ImageView hotLabelImage;
         public ImageView avatarImage;
         public TextView userNameText;
         public TextView contentText;
@@ -357,9 +370,8 @@ public class RecordAdapter extends BaseAdapter {
         public ImageView videoCaptureImage;
         public ImageView videoPlayIcon;
 
-        public ImageView diggImage;
-        public ImageView buryImage;
-        public ImageView commentImage;
+        public TextView hotCommentLabel;
+        public ListView hotCommentList;
 
         public TextView diggCountText;
         public TextView buryCountText;

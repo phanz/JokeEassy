@@ -3,9 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/bg_light_gray"
-    android:paddingLeft="12dp"
-    android:paddingRight="12dp">
+    android:background="@color/bg_light_gray">
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/content_swipe_refresh_view"
@@ -17,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="#0000"
-            android:dividerHeight="10dp"/>
+            android:dividerHeight="10dp" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

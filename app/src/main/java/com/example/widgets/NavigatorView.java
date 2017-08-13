@@ -2,13 +2,13 @@ package com.example.widgets;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +16,10 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.example.jokeeassy.R;
-import com.example.utils.DisplayUtils;
-import com.example.utils.RectUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,20 +36,18 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
     private Context mContext;
 
     private int mScreenWidth;
-    private static final int TAB_NUM_DEFAULT = 5;
+    private int mTabWidth;
+    private int mTabHeight;
     private int mTabCount;
-    private int tabWidth;
-    private int tabHeight;
-
-    private static final float mRadius = 16;
-    private float mCursorScale = 0.8f;
+    private float mCursorScale;
+    private float mCursorRadius;
+    private int mTextSize;
+    private int mTextOriginColor;
+    private int mTextChangeColor;
+    private OnTabClickListener mOnTabClickListener;
 
     private RectF mCursorRectF;
-
-    private boolean mClickSwitching;
-    private int mClickIndex;
-
-    public OnTabClickListener mOnTabClickListener;
+    private RectF mCursorScaleRect;
 
     private GestureDetector mGestureDetector;
 
@@ -68,60 +64,37 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
     public void init(Context context){
         setWillNotDraw(false);//ViewGroup本身不含内容，默认为透明的，不触发onDraw操作，需要手动开启
         mCursorRectF = new RectF(0,0,0,0);
+        mCursorScaleRect = new RectF();
+
         mContext = context;
-        tabHeight = DisplayUtils.dp2px(mContext,45);
         mPaint = new Paint();
         mPaint.setColor(context.getResources().getColor(R.color.tab_cursor_bg));
+
         LinearLayout.LayoutParams tabLayoutParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mTabLayout = new LinearLayout(context);
         mTabLayout.setLayoutParams(tabLayoutParams);
         addView(mTabLayout);
 
-        ImageView rightBarImage = new ImageView(mContext);
-        rightBarImage.setBackgroundResource(R.drawable.ic_topbar_arrow);
-        RelativeLayout.LayoutParams rightBarParams
-                = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,tabHeight);
-        rightBarParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,RelativeLayout.TRUE);
-        addView(rightBarImage,rightBarParams);
-
-        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        mScreenWidth = windowManager.getDefaultDisplay().getWidth();
-        setTabCount(TAB_NUM_DEFAULT);
-
-        mClickSwitching = false;
-        mClickIndex = 0;
-
         mGestureDetector = new GestureDetector(mContext,new SimpleGestureListener());
         setLongClickable(true);
         setOnTouchListener(this);
-        rightBarImage.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(mContext,"点击",Toast.LENGTH_SHORT).show();
-                int lastIndex = mTabLayout.getChildCount() - 1;
-                int tabTotalWidth = mTabLayout.getChildAt(lastIndex).getRight();
-                int scrollX = mTabLayout.getScrollX();
-                int offset = tabTotalWidth - scrollX - mScreenWidth;
-                mTabLayout.scrollBy(offset,0);
-                mCursorRectF.left += -offset;
-                mCursorRectF.right = mCursorRectF.left + tabWidth;
-            }
-        });
-
     }
 
-    public void setTabList(List<String> tabList){
+    private void setTabList(List<String> tabList){
         if(tabList == null || tabList.size() == 0){
             return;
         }
 
-        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(tabWidth,tabHeight);
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(mTabWidth, mTabHeight);
         for(int i = 0; i < tabList.size(); i++){
             ColorTextView textView = new ColorTextView(mContext,null);
             textView.setText(tabList.get(i));
             textView.setLayoutParams(params);
-            textView.setTextSize(DisplayUtils.sp2px(mContext,16));
+            textView.setTextSize(mTextSize);
+            textView.setTextOriginColor(mTextOriginColor);
+            textView.setTextChangeColor(mTextChangeColor);
+            textView.setGravity(Gravity.CENTER);
             mTabLayout.addView(textView);
 
             textView.setOnClickListener(new OnClickListener() {
@@ -129,97 +102,117 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
                 public void onClick(View view) {
                     if(mOnTabClickListener != null){
                         int index = ((ViewGroup)view.getParent()).indexOfChild(view);
-                        mClickSwitching = true;
-                        mClickIndex = index;
-                        skipToPosition(index);
+                        setCurrentPosition(index);
                         mOnTabClickListener.onTabClick(index);
                     }
                 }
             });
 
         }
-    }
-
-    public void setTabCount(int tabCount){
-        mTabCount = tabCount;
-        tabWidth = mScreenWidth / mTabCount;
-
-        mCursorRectF.left = 0;
-        mCursorRectF.top = 0;
-        mCursorRectF.right = tabWidth;
-        mCursorRectF.bottom = tabHeight;
-
-        invalidate();
+        setCurrentPosition(1);
     }
 
     private float preTotalPosition = 0;
     public void setCursorPosition(int position, float positionOffset){
-        if(position + positionOffset == preTotalPosition) return;
+        float currentTotalPosition = position + positionOffset;
 
-        if(mClickSwitching){
-            if(position == mClickIndex && positionOffset == 0) {
-                mClickSwitching = false;
-            }
-            return;
-        }
+        if(currentTotalPosition == preTotalPosition) return;
 
         boolean isScrollRight = position + positionOffset > preTotalPosition;
 
         if(isScrollRight && (mCursorRectF.right >= mScreenWidth)){//向右将要滑出屏幕
-            int layoutOffset = (int)((position + positionOffset + 1 - mTabCount) * tabWidth);
+            int layoutOffset = (int)((currentTotalPosition + 1 - mTabCount) * mTabWidth);
             mTabLayout.scrollTo(layoutOffset,0);
 
         }else if(!isScrollRight && mCursorRectF.left == 0){//向左将要滑出屏幕
-            float layoutOffset = (position + positionOffset) * tabWidth;
+            float layoutOffset = currentTotalPosition * mTabWidth;
             mTabLayout.scrollTo((int)layoutOffset,0);
 
         }else{
-            float cursorRectX = (position + positionOffset) * tabWidth - mTabLayout.getScrollX();
+            float cursorRectX = currentTotalPosition * mTabWidth - mTabLayout.getScrollX();
             mCursorRectF.left = cursorRectX ;
-            mCursorRectF.right = mCursorRectF.left + tabWidth;
+            mCursorRectF.right = mCursorRectF.left + mTabWidth;
         }
 
         preTotalPosition = position + positionOffset;
 
-
         ColorTextView textView = (ColorTextView) mTabLayout.getChildAt(position);
-        textView.setCursorRect(mCursorRectF,mCursorScale);
+        textView.setPositionOffset(positionOffset,1,mCursorScale);
 
         if(position + 1 < mTabLayout.getChildCount()){
             textView = (ColorTextView) mTabLayout.getChildAt(position + 1);
-            textView.setCursorRect(mCursorRectF,mCursorScale);
+            textView.setPositionOffset(0,positionOffset,mCursorScale);
         }
 
         invalidate();
     }
 
-    public void skipToPosition(int position){
+    public void setCurrentPosition(int position){
         mCursorRectF.left = 0;
         mCursorRectF.right = 0;
         ColorTextView colorTextView = null;
         for(int i = 0; i < mTabLayout.getChildCount(); i++){
             colorTextView = (ColorTextView)mTabLayout.getChildAt(i);
-            colorTextView.setCursorRect(mCursorRectF,mCursorScale);
+            colorTextView.setPositionOffset(0,0,mCursorScale);
         }
         colorTextView = (ColorTextView)mTabLayout.getChildAt(position);
         int scrollX = mTabLayout.getScrollX();
-        mCursorRectF.left = tabWidth * position - scrollX;
-        mCursorRectF.right = mCursorRectF.left + tabWidth;
-        colorTextView.setCursorRect(mCursorRectF,mCursorScale);
+        mCursorRectF.left = mTabWidth * position - scrollX;
+        mCursorRectF.right = mCursorRectF.left + mTabWidth;
+        colorTextView.setPositionOffset(0,1,mCursorScale);
         invalidate();
     }
 
-    public void setOnTabListener(OnTabClickListener onTabListener){
-        mOnTabClickListener = onTabListener;
+    private void addRightAction(int rightResId){
+        if(rightResId == 0){
+            return;
+        }
+        ImageView rightBarImage = new ImageView(mContext);
+        rightBarImage.setBackgroundResource(rightResId);
+        RelativeLayout.LayoutParams rightBarParams
+                = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, mTabHeight);
+        rightBarParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,RelativeLayout.TRUE);
+        addView(rightBarImage,rightBarParams);
+        rightBarImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int lastIndex = mTabLayout.getChildCount() - 1;
+                int tabTotalWidth = mTabLayout.getChildAt(lastIndex).getRight();
+                int scrollX = mTabLayout.getScrollX();
+                int offset = tabTotalWidth - scrollX - mScreenWidth;
+                mTabLayout.scrollBy(offset,0);
+                mCursorRectF.left += -offset;
+                mCursorRectF.right = mCursorRectF.left + mTabWidth;
+            }
+        });
     }
 
-    private RectF mCursorDrawRect = new RectF();
+    public void apply(NavigatorParams params){
+        mContext = params.mContext;
+        mScreenWidth = params.mScreenWidth;
+        mTabCount = params.mTabCount;
+        mTabWidth = params.mTabWidth;
+        mTabHeight = dp2px(params.mContext,params.mTabHeight);
+        mCursorScale = params.mCursorScale;
+        mCursorRadius = params.mCursorRadius;
+        mTextSize = params.mTextSize;
+        mTextOriginColor = params.mTextColor;
+        mTextChangeColor = params.mTextChangeColor;
+        setTabList(params.mTabList);
+        mOnTabClickListener = params.mOnTabClickListener;
+        addRightAction(params.mRightResId);
+        mCursorRectF.right = mTabWidth;
+        mCursorRectF.bottom = mTabHeight;
+
+        invalidate();
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        RectUtils.rectConvert(mCursorRectF, mCursorDrawRect,mCursorScale);
-        canvas.drawRoundRect(mCursorDrawRect,mRadius,mRadius, mPaint);
+        rectConvert(mCursorRectF, mCursorScaleRect,mCursorScale);
+        canvas.drawRoundRect(mCursorScaleRect, mCursorRadius, mCursorRadius, mPaint);
     }
 
     @Override
@@ -234,6 +227,26 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
 
     public interface OnTabClickListener{
         void onTabClick(int index);
+    }
+
+    public static int dp2px(Context context,float dpVal) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                dpVal, context.getResources().getDisplayMetrics());
+    }
+
+    public static int sp2px(Context context,float dpVal) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
+                dpVal, context.getResources().getDisplayMetrics());
+    }
+
+    public static void rectConvert(RectF src,RectF dest,float scale){
+        int width = (int)(src.right - src.left);
+        int height = (int)(src.bottom - src.top);
+        dest.left = (int)src.left + (int)(width * (1 - scale) / 2);
+        dest.right = dest.left + (int)(width * scale);
+
+        dest.top = (int)src.top + (int)(height * (1 - scale) / 2);
+        dest.bottom = dest.top + (int)(height * scale);
     }
 
     private class SimpleGestureListener extends GestureDetector.SimpleOnGestureListener{
@@ -260,17 +273,116 @@ public class NavigatorView extends RelativeLayout implements View.OnTouchListene
                 int offset = Math.min(-(int)distanceX,mTabLayout.getScrollX());
                 mTabLayout.scrollBy(-offset,0);
                 mCursorRectF.left += offset;
-                mCursorRectF.right = mCursorRectF.left + tabWidth;
+                mCursorRectF.right = mCursorRectF.left + mTabWidth;
 
             }else if(distanceX > 0 && (tabTotalWidth - scrollX) > mScreenWidth){//向左拖动
                 int offset = Math.min((int)distanceX,tabTotalWidth - scrollX - mScreenWidth);
                 mTabLayout.scrollBy(offset,0);
                 mCursorRectF.left += -offset;
-                mCursorRectF.right = mCursorRectF.left + tabWidth;
+                mCursorRectF.right = mCursorRectF.left + mTabWidth;
             }
             invalidate();
 
             return true;
+        }
+    }
+
+    public static class NavigatorViewBuilder{
+
+        private NavigatorParams params;
+
+        public NavigatorViewBuilder(Context context){
+            params = new NavigatorParams(context);
+        }
+
+        public NavigatorViewBuilder setTabCount(int tabCount){
+            params.mTabCount = tabCount;
+            WindowManager windowManager = (WindowManager) params.mContext.getSystemService(Context.WINDOW_SERVICE);
+            int screenWidth = windowManager.getDefaultDisplay().getWidth();
+            params.mScreenWidth = screenWidth;
+            params.mTabWidth = screenWidth / tabCount;
+            return this;
+        }
+
+        public NavigatorViewBuilder setTabWidth(int tabWidth){
+            params.mTabWidth = tabWidth;
+            return this;
+        }
+
+        public NavigatorViewBuilder setTabHeight(int tabHeight){
+            params.mTabHeight = tabHeight;
+            return this;
+        }
+
+        public NavigatorViewBuilder setCursorScale(float cursorScale){
+            params.mCursorScale = cursorScale;
+            return this;
+        }
+
+        public NavigatorViewBuilder setCursorRadius(int cursorRadius){
+            params.mCursorRadius = cursorRadius;
+            return this;
+        }
+
+        public NavigatorViewBuilder setTextSize(int textSize){
+            params.mTextSize = textSize;
+            return this;
+        }
+
+        public NavigatorViewBuilder setTextOriginColor(int textColor){
+            params.mTextColor = textColor;
+            return this;
+        }
+
+        public NavigatorViewBuilder setTextChangeColor(int textChangeColor){
+            params.mTextChangeColor = textChangeColor;
+            return this;
+        }
+
+        public NavigatorViewBuilder setTabList(List<String> tabList){
+            params.mTabList = tabList;
+            return this;
+        }
+
+        public NavigatorViewBuilder setOnTabListener(OnTabClickListener onTabListener){
+            params.mOnTabClickListener = onTabListener;
+            return this;
+        }
+
+        public NavigatorViewBuilder setRightImage(int resId){
+            params.mRightResId = resId;
+            return this;
+        }
+
+        public void apply(NavigatorView navigatorView){
+            navigatorView.apply(params);
+        }
+
+        public NavigatorView create(){
+            NavigatorView navigatorView = new NavigatorView(params.mContext);
+            navigatorView.apply(params);
+            return navigatorView;
+        }
+
+    }
+
+    private static class NavigatorParams{
+        Context mContext;
+        int mScreenWidth;
+        int mTabCount = 5;
+        int mTabWidth = 60;
+        int mTabHeight = 45;//dp
+        float mCursorScale = 0.8f;
+        float mCursorRadius = 16;
+        int mTextSize = 16;//sp
+        int mTextColor = 0xff000000;
+        int mTextChangeColor = 0xffffffff;
+        OnTabClickListener mOnTabClickListener;
+        List<String> mTabList = new ArrayList<>();
+        int mRightResId = 0;
+
+        public NavigatorParams(Context context){
+            mContext = context;
         }
     }
 }
