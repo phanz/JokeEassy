@@ -6,22 +6,21 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -46,7 +45,7 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
 
     public static final String TAG = "CommentActivity";
 
-    private ScrollView mContentScrollView;
+    private NestedScrollView mContentScrollView;
     private ImageView mHotLabelImage;
     private ImageView mUserAvatarImage;
     private TextView mUserNameText;
@@ -54,7 +53,7 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
     private TextView mCategoryText;
     private ImageView mLargeImage;
     private FrameLayout mVideoLayout;
-    private ImageView mPlayIcon;
+    private ImageView mVideoPlayIcon;
     private ImageView mVideoCaptureImage;
     private VideoView mVideoView;
 
@@ -67,9 +66,9 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
 
 
     private TextView mTopCommentsText;
-    private ListView mTopCommentsList;
+    private RecyclerView mTopCommentsList;
     private TextView mRecentCommentsText;
-    private ListView mRecentCommentsList;
+    private RecyclerView mRecentCommentsList;
 
     private CommentAdapter mTopAdapter;
     private CommentAdapter mRecentAdapter;
@@ -110,7 +109,7 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         Bundle bundle = intent.getExtras();
         mGroup = (Group)bundle.getSerializable("group");
 
-        mContentScrollView = (ScrollView) findViewById(R.id.detail_layout);
+        mContentScrollView = (NestedScrollView) findViewById(R.id.detail_layout);
         RelativeLayout contentLayout = (RelativeLayout) findViewById(R.id.item_content) ;
 
         mHotLabelImage = (ImageView) contentLayout.findViewById(R.id.hot_label_image);
@@ -121,7 +120,7 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         mLargeImage = (ImageView) contentLayout.findViewById(R.id.large_image);
 
         mVideoLayout = (FrameLayout) contentLayout.findViewById(R.id.video_layout);
-        mPlayIcon = (ImageView) contentLayout.findViewById(R.id.video_play_icon);
+        mVideoPlayIcon = (ImageView) contentLayout.findViewById(R.id.video_play_icon);
         mVideoCaptureImage = (ImageView) contentLayout.findViewById(R.id.video_capture_image);
         mVideoView = (VideoView) contentLayout.findViewById(R.id.video_view);
 
@@ -149,26 +148,29 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         }
 
         if(mGroup.getIsVideo() == 1){
-
+            mVideoLayout.setVisibility(View.VISIBLE);
             mVideoCaptureImage.setVisibility(View.VISIBLE);
-            mPlayIcon.setVisibility(View.VISIBLE);
+            mVideoPlayIcon.setVisibility(View.VISIBLE);
+            mVideoView.setVisibility(View.VISIBLE);
+
             String captureImageUrl = mGroup.getLargeCover().getUrlList().get(0).getUrl();
             Glide.with(this).load(captureImageUrl).into(mVideoCaptureImage);
+
             ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
             params.width = ViewGroup.LayoutParams.MATCH_PARENT;
             mVideoView.setLayoutParams(params);
-            mVideoView.setVisibility(View.VISIBLE);
+
             Uri uri = Uri.parse(mGroup.getMp4Url());
             MediaController controller = new MediaController(this);
             controller.setVisibility(View.INVISIBLE);
             mVideoView.setMediaController(controller);
             mVideoView.setVideoURI(uri);
             mVideoView.requestFocus();
-            mPlayIcon.setOnClickListener(new View.OnClickListener() {
+            mVideoPlayIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mVideoCaptureImage.setVisibility(View.GONE);
-                    mPlayIcon.setVisibility(View.GONE);
+                    mVideoPlayIcon.setVisibility(View.GONE);
                     if(mVideoView.isPlaying()){
                         mVideoView.resume();
                     }else{
@@ -181,22 +183,16 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
                 public void onClick(View view) {
                     if(mVideoView.isPlaying()){
                         mVideoView.pause();
-                        mPlayIcon.setVisibility(View.VISIBLE);
-                    }else{
-                        mVideoView.resume();
-                        mPlayIcon.setVisibility(View.GONE);
+                        mVideoPlayIcon.setVisibility(View.VISIBLE);
                     }
                 }
             });
             mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
-                    mPlayIcon.setVisibility(View.VISIBLE);
+                    mVideoPlayIcon.setVisibility(View.VISIBLE);
                 }
             });
-
-
-
         }else{
             mVideoLayout.setVisibility(View.GONE);
             mVideoView.setVisibility(View.GONE);
@@ -211,10 +207,16 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
 
 
         mTopCommentsText = (TextView) findViewById(R.id.top_comment_text);
-        mTopCommentsList = (ListView) findViewById(R.id.top_comment_list);
+        mTopCommentsList = (RecyclerView) findViewById(R.id.top_comment_list);
         mRecentCommentsText = (TextView) findViewById(R.id.recent_text);
-        mRecentCommentsList = (ListView) findViewById(R.id.recent_text_list);
+        mRecentCommentsList = (RecyclerView) findViewById(R.id.recent_text_list);
         mCommentInput = (EditText) findViewById(R.id.comment_input);
+
+        mTopCommentsList.setNestedScrollingEnabled(false);
+        mRecentCommentsList.setNestedScrollingEnabled(false);
+
+        mTopCommentsList.setLayoutManager(new LinearLayoutManager(this));
+        mRecentCommentsList.setLayoutManager(new LinearLayoutManager(this));
 
         mTopAdapter = new CommentAdapter(this);
         mRecentAdapter = new CommentAdapter(this);
@@ -239,8 +241,6 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
                 List<Comment> recentCommentList = commentSet.getRecentComments();
                 mTopAdapter.setCommentList(topCommentList);
                 mRecentAdapter.setCommentList(recentCommentList);
-                mTopAdapter.notifyDataSetChanged();
-                mRecentAdapter.notifyDataSetChanged();
                 mTopCommentsText.setText(String.format("热门评论(%d)",topCommentList.size()));
                 mRecentCommentsText.setText(String.format("新鲜评论(%d)",recentCommentList.size()));
                 mTopCommentsText.setVisibility(topCommentList.size() > 0 ? View.VISIBLE : View.GONE);

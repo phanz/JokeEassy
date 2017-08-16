@@ -1,6 +1,7 @@
 package com.example.adapter;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +22,7 @@ import java.util.List;
  * Created by phanz on 2017/7/22.
  */
 
-public class CommentAdapter extends BaseAdapter {
+public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
     private static final String TAG = "CommentAdapter";
 
     private List<Comment> mCommentList;
@@ -35,22 +36,18 @@ public class CommentAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        return mCommentList.size();
-    }
-
-    @Override
-    public Object getItem(int i) {
-        return mCommentList.get(i);
-    }
-
-    @Override
     public long getItemId(int i) {
         return i;
     }
 
+    @Override
+    public int getItemCount() {
+        return mCommentList.size();
+    }
+
     public void setCommentList(List<Comment> commentList) {
         this.mCommentList = commentList;
+        notifyDataSetChanged();
     }
 
     public void addCommentList(List<Comment> commentList){
@@ -58,44 +55,38 @@ public class CommentAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        ViewHolder holder = null;
-        if(view == null){
-            view = mInflater.inflate(R.layout.item_comment,viewGroup,false);
-            ImageView avatarImage = (ImageView) view.findViewById(R.id.user_avatar_image);
-            TextView userNameText = (TextView) view.findViewById(R.id.user_name_text);
-            TextView commentTimeText = (TextView) view.findViewById(R.id.comment_time_text);
-            TextView diggCountText = (TextView) view.findViewById(R.id.digg_count_text);
-            ImageView diggImage = (ImageView) view.findViewById(R.id.comment_digg_image);
-            TextView commentText = (TextView) view.findViewById(R.id.comment_text);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = mInflater.inflate(R.layout.item_comment,parent,false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        return viewHolder;
+    }
 
-            holder = new ViewHolder();
-            holder.avatarImage = avatarImage;
-            holder.userNameText = userNameText;
-            holder.commentTimeText = commentTimeText;
-            holder.diggCountText = diggCountText;
-            holder.diggImage = diggImage;
-            holder.commentText = commentText;
-            view.setTag(holder);
-
-        }else{
-            holder = (ViewHolder) view.getTag();
-        }
-        Comment comment = mCommentList.get(i);
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        Comment comment = mCommentList.get(position);
         Glide.with(mContext).load(comment.getAvatarUrl()).into(holder.avatarImage);
         holder.userNameText.setText(comment.getUserName());
         holder.commentTimeText.setText(DateUtils.getFormatDateTime(comment.getCreateTime(),"MM-dd HH:mm:ss"));
         holder.diggCountText.setText(comment.getDiggCount() + "");
         holder.commentText.setText(comment.getText());
-        return view;
     }
 
-    public static class ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder{
         public ImageView avatarImage;
         public TextView userNameText;
         public TextView commentTimeText;
         public TextView diggCountText;
         public ImageView diggImage;
         public TextView commentText;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            avatarImage = (ImageView) itemView.findViewById(R.id.user_avatar_image);
+            userNameText = (TextView) itemView.findViewById(R.id.user_name_text);
+            commentTimeText = (TextView) itemView.findViewById(R.id.comment_time_text);
+            diggCountText = (TextView) itemView.findViewById(R.id.digg_count_text);
+            diggImage = (ImageView) itemView.findViewById(R.id.comment_digg_image);
+            commentText = (TextView) itemView.findViewById(R.id.comment_text);
+        }
     }
 }
