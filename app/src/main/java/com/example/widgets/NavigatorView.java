@@ -124,14 +124,21 @@ public class NavigatorView extends RelativeLayout{
             int layoutOffset = (int)((currentTotalPosition + 1 - mTabCount) * mTabWidth);
             mTabLayout.scrollTo(layoutOffset,0);
 
+            mCursorRectF.left = mScreenWidth - mTabWidth ;
+            mCursorRectF.right = mScreenWidth;
         }else if(!isScrollRight && mCursorRectF.left <= 0){//向左将要滑出屏幕
             int layoutOffset = (int)(currentTotalPosition * mTabWidth);
             mTabLayout.scrollTo(layoutOffset,0);
+
+            mCursorRectF.left = 0 ;
+            mCursorRectF.right = mCursorRectF.left + mTabWidth;
+        }else{
+            float cursorRectX = currentTotalPosition * mTabWidth - mTabLayout.getScrollX();
+            mCursorRectF.left = cursorRectX ;
+            mCursorRectF.right = mCursorRectF.left + mTabWidth;
         }
 
-        float cursorRectX = currentTotalPosition * mTabWidth - mTabLayout.getScrollX();
-        mCursorRectF.left = cursorRectX ;
-        mCursorRectF.right = mCursorRectF.left + mTabWidth;
+
 
         mPreTotalPosition = position + positionOffset;
 

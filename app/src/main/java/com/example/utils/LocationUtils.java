@@ -10,14 +10,14 @@ import com.baidu.location.LocationClientOption;
  * Created by phanz on 2017/7/30.
  */
 
-public class MapUtils {
+public class LocationUtils {
 
-    public static final String TAG = "MapUtils";
+    public static final String TAG = "LocationUtils";
 
-    private static MapUtils sInstance = null;
+    private static LocationUtils sInstance = null;
     private LocationClient mLocationClient;
 
-    public MapUtils(Context context){
+    public LocationUtils(Context context){
         mLocationClient = new LocationClient(context);
         //声明LocationClient类
         LocationClientOption option = getLocationClientOption();
@@ -25,11 +25,11 @@ public class MapUtils {
 
     }
 
-    public static MapUtils getInstance(Context context){
+    public static LocationUtils getInstance(Context context){
         if(sInstance == null){
-            synchronized (MapUtils.class){
+            synchronized (LocationUtils.class){
                 if(sInstance == null){
-                    sInstance = new MapUtils(context);
+                    sInstance = new LocationUtils(context);
                 }
             }
         }

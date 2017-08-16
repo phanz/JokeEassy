@@ -1,6 +1,5 @@
 package com.example.jokeeassy;
 
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,19 +13,12 @@ import android.widget.ImageView;
 
 import com.baidu.location.BDLocation;
 import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
-import com.baidu.location.Poi;
 import com.example.fragment.DiscoveryFragment;
 import com.example.fragment.HomeFragment;
 import com.example.fragment.MessageFragment;
 import com.example.fragment.ReviewFragment;
-import com.example.utils.MapUtils;
+import com.example.utils.LocationUtils;
 import com.example.widget.TitleBar;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,10 +52,8 @@ public class MainActivity extends FragmentActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(getResources().getColor(R.color.statusBar));
         }
-        ImageLoaderConfiguration configuration = ImageLoaderConfiguration.createDefault(this);
-        ImageLoader.getInstance().init(configuration);
 
-        MapUtils.getInstance(this).registerLocationListener(locationListener);
+        LocationUtils.getInstance(this).registerLocationListener(locationListener);
 
         ButterKnife.bind(this);
         TitleBar titleBar = (TitleBar) findViewById(R.id.title_bar);
@@ -71,7 +61,7 @@ public class MainActivity extends FragmentActivity {
         titleBar.setLeftClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MapUtils.getInstance(MainActivity.this).startLocation();
+                LocationUtils.getInstance(MainActivity.this).startLocation();
             }
         });
         titleBar.setTitleBackground(R.drawable.ic_neihan_logo);
@@ -140,7 +130,7 @@ public class MainActivity extends FragmentActivity {
 
             String city = bdLocation.getCity();
             Log.d(TAG, "onReceiveLocation: " + city);
-            MapUtils.getInstance(MainActivity.this).stopLocation();
+            LocationUtils.getInstance(MainActivity.this).stopLocation();
         }
 
         @Override

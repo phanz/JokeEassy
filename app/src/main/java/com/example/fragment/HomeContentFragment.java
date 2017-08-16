@@ -2,30 +2,25 @@ package com.example.fragment;
 
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.adapter.ContentAdapter;
+import com.example.widgets.SimplePaddingDecoration;
 import com.example.http.HttpDataRepository;
 import com.example.jokeeassy.R;
-import com.example.model.Group;
-import com.example.model.ImageBean;
 import com.example.model.ContentResponse;
 import com.example.model.Record;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.List;
 
@@ -35,16 +30,40 @@ import io.reactivex.disposables.Disposable;
 
 
 public class HomeContentFragment extends Fragment
-        implements SwipeRefreshLayout.OnRefreshListener,AbsListView.OnScrollListener{
+        implements SwipeRefreshLayout.OnRefreshListener{
     public static final String TAG = "HomeRecommendFragment";
+    public static String TITLE_KEY = "title";
+    public static String TYPE_KEY = "content_type";
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ListView mContentListView;
+    private RecyclerView mContentListView;
     private ContentAdapter mContentAdapter;
+    private String mTitle;
     private String mContentType;
 
     public HomeContentFragment(){
 
+    }
+
+    public static HomeContentFragment newInstance(String title,String contentType){
+        HomeContentFragment contentFragment = new HomeContentFragment();
+        contentFragment.setTitle(title);
+        contentFragment.setContentType(contentType);
+        /*Bundle bundle = new Bundle();
+        bundle.putString(TITLE_KEY,title);
+        bundle.putString(TYPE_KEY,contentType);
+        contentFragment.setArguments(bundle);*/
+        return contentFragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+//        Bundle args = getArguments();
+//        if(args != null){
+//            setTitle(args.getString(TITLE_KEY));
+//            setContentType(args.getString(TYPE_KEY));
+//        }
     }
 
     @Override
@@ -59,64 +78,13 @@ public class HomeContentFragment extends Fragment
         View view = inflater.inflate(R.layout.fragment_home_content, container, false);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_swipe_refresh_view);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mContentListView = (ListView) view.findViewById(R.id.content_list_view);
+        mContentListView = (RecyclerView) view.findViewById(R.id.content_list_view);
         mContentListView.setAdapter(mContentAdapter);
-        mContentListView.setOnScrollListener(this);
+        //mContentListView.addOnScrollListener(new MyScrollListener());
+        mContentListView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        //mContentListView.addItemDecoration(new DividerItemDecoration(getActivity(),LinearLayoutManager.VERTICAL));
+        mContentListView.addItemDecoration(new SimplePaddingDecoration());
         return view;
-    }
-
-
-    @Override
-    public void onScrollStateChanged(AbsListView absListView, int scrollState) {
-        switch (scrollState){
-            case AbsListView.OnScrollListener.SCROLL_STATE_IDLE://停止滚动
-                mContentAdapter.setScrollState(false);
-                int count = absListView.getChildCount();//获取屏幕中的视图个数
-                for(int i = 0; i < count; i++){
-                    View childView = absListView.getChildAt(i);
-                    int position = absListView.getPositionForView(childView);
-                    Record record = (Record) mContentAdapter.getItem(position);
-                    Group group = record.getGroup();
-                    if(group != null && group.getLargeImage() != null){
-                        ImageBean imageBean = group.getLargeImage();
-                        String url = imageBean.getUrlList().get(0).getUrl();
-                        ImageView largeImage = (ImageView) childView.findViewById(R.id.large_image);
-                        Glide.with(getActivity()).load(url).into(largeImage);
-                    }
-                    if(group != null && group.getThumbImageList() != null){
-                        List<ImageBean> thumbImageList = group.getThumbImageList();
-                        for(int j = 0; j < thumbImageList.size(); j++){
-                            ImageBean imageBean = thumbImageList.get(j);
-                            ContentAdapter.RecordHolder holder = (ContentAdapter.RecordHolder)childView.getTag();
-                            ViewGroup.LayoutParams thumbParams = holder.thumbImageList[j].getLayoutParams();
-                            thumbParams.width = imageBean.getWidth();
-                            thumbParams.height = imageBean.getHeight();
-                            loadImage(holder.thumbImageList[j],imageBean.getUrl(),thumbParams);
-                        }
-                    }
-
-                    if(group != null && group.getIsVideo() == 1){
-                        ImageView videoCaptureImage = (ImageView) childView.findViewById(R.id.video_capture_image);
-                        final String captureImageUrl = group.getLargeCover().getUrlList().get(0).getUrl();
-                        loadImage(videoCaptureImage,captureImageUrl,null);
-                    }
-
-                }
-                break;
-
-            case AbsListView.OnScrollListener.SCROLL_STATE_FLING://滚动做出了抛的动作
-                mContentAdapter.setScrollState(true);
-                break;
-
-            case AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL://正在滚动
-                mContentAdapter.setScrollState(true);
-                break;
-        }
-    }
-
-    @Override
-    public void onScroll(AbsListView absListView, int i, int i1, int i2) {
-
     }
 
     @Override
@@ -125,9 +93,20 @@ public class HomeContentFragment extends Fragment
         fetchContent(null);
     }
 
-    public HomeContentFragment setContentType(String contentType){
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public void setTitle(String title){
+        mTitle = title;
+    }
+
+    public String getContentType() {
+        return mContentType;
+    }
+
+    public void setContentType(String contentType){
         mContentType = contentType;
-        return this;
     }
 
     public void fetchContent(OnFetchCompleteListener listener){
@@ -167,40 +146,6 @@ public class HomeContentFragment extends Fragment
         });
     }
 
-    private void loadImage(final ImageView imageView, String url, final ViewGroup.LayoutParams params){
-        ImageLoader.getInstance().loadImage(url, new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                Log.d(TAG, "onLoadingStarted: ");
-            }
-
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                Log.d(TAG, "onLoadingFailed: ");
-            }
-
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                Log.d(TAG, "onLoadingComplete: ");
-                if(loadedImage != null){
-                    if(params != null){
-                        imageView.setLayoutParams(params);
-                    }
-                    //imageView.setImageBitmap(loadedImage);
-                    imageView.setImageBitmap(loadedImage);
-                    imageView.setVisibility(View.VISIBLE);
-                }else{
-                    Log.e(TAG, "onLoadingComplete: loadedImage is null");
-                }
-            }
-
-            @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-                Log.d(TAG, "onLoadingCancelled: ");
-            }
-        });
-    }
-
     public interface OnFetchCompleteListener{
         /**
          * 0:成功
@@ -208,6 +153,34 @@ public class HomeContentFragment extends Fragment
          * @param result
          */
         void onFetchComplete(int result);
+    }
+
+    private class MyScrollListener extends RecyclerView.OnScrollListener{
+        public MyScrollListener() {
+            super();
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            switch (newState){
+                case RecyclerView.SCROLL_STATE_IDLE://停止滚动
+                    Glide.with(getActivity()).resumeRequests();
+                    break;
+
+                case RecyclerView.SCROLL_STATE_DRAGGING://滚动做出了抛的动作
+                    Glide.with(getActivity()).pauseRequests();
+                    break;
+
+                case RecyclerView.SCROLL_STATE_SETTLING://正在滚动
+                    Glide.with(getActivity()).pauseRequests();
+                    break;
+            }
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+        }
     }
 
 

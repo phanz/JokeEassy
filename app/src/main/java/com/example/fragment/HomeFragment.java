@@ -1,5 +1,6 @@
 package com.example.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,29 +34,20 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
     private ImageView mRefreshImage;
 
     public HomeFragment(){
-        mTitleList = new ArrayList<>();
-        mTitleList.add("推荐");
-        mTitleList.add("视频");
-        mTitleList.add("段友秀");
-        mTitleList.add("图片");
-        mTitleList.add("段子");
-        mTitleList.add("订阅");
-
-        HomeContentFragment homeRecommendFragment = new HomeContentFragment().setContentType("-101");
-        HomeContentFragment homeVideoFragment = new HomeContentFragment().setContentType("-104");
-        HomeContentFragment homeTaleShowFragment = new HomeContentFragment();
-        HomeContentFragment homePictureFragment = new HomeContentFragment().setContentType("-103");
-        HomeContentFragment homeTaleFragment = new HomeContentFragment().setContentType("-102");
-        HomeContentFragment homeSubscribeFragment = new HomeContentFragment();
 
         mHomeSubFragment = new ArrayList<>();
-        mHomeSubFragment.add(homeRecommendFragment);
-        mHomeSubFragment.add(homeVideoFragment);
-        mHomeSubFragment.add(homeTaleShowFragment);
-        mHomeSubFragment.add(homePictureFragment);
-        mHomeSubFragment.add(homeTaleFragment);
-        mHomeSubFragment.add(homeSubscribeFragment);
+        mHomeSubFragment.add(HomeContentFragment.newInstance("推荐","-101"));
+        mHomeSubFragment.add(HomeContentFragment.newInstance("视频","-104"));
+        mHomeSubFragment.add(HomeContentFragment.newInstance("段友秀",""));
+        mHomeSubFragment.add(HomeContentFragment.newInstance("图片","-103"));
+        mHomeSubFragment.add(HomeContentFragment.newInstance("段子","-102"));
+        mHomeSubFragment.add(HomeContentFragment.newInstance("订阅",""));
 
+        mTitleList = new ArrayList<>();
+        for(Fragment fragment : mHomeSubFragment){
+            HomeContentFragment contentFragment = (HomeContentFragment)fragment;
+            mTitleList.add(contentFragment.getTitle());
+        }
     }
 
     @Override
@@ -74,8 +66,8 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
                 .setTabList(mTitleList)
                 .setTabHeight(45)
                 .setTextSize(16)
-                .setTextOriginColor(0xff000000)
-                .setTextChangeColor(0xffffffff)
+                .setTextOriginColor(Color.BLACK)
+                .setTextChangeColor(Color.WHITE)
                 .setCursorScale(0.8f)
                 .setCursorRadius(16)
                 .setTabList(mTitleList)

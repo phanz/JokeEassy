@@ -39,8 +39,8 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.8.1'
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
-    compile 'com.github.bumptech.glide:glide:4.0.0-RC1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0'
+    compile 'com.github.bumptech.glide:glide:4.0.0'
     compile files('libs/BaiduLBS_Android.jar')
+    compile 'com.android.support:recyclerview-v7:25.3.1'
 }

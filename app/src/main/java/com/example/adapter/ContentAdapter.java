@@ -2,15 +2,14 @@ package com.example.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -20,16 +19,13 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.jokeeassy.CommentActivity;
 import com.example.jokeeassy.R;
 import com.example.model.Comment;
 import com.example.model.Group;
 import com.example.model.ImageBean;
 import com.example.model.Record;
-import com.example.utils.DisplayUtils;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,23 +34,17 @@ import java.util.List;
  * Created by phanz on 2017/7/8.
  */
 
-public class ContentAdapter extends BaseAdapter {
+public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHolder> {
     private static final String TAG = "ContentAdapter";
 
     private List<Record> mRecordList;
     private Context mContext;
     private LayoutInflater mInflater;
-    private boolean mScrollState;
 
     public ContentAdapter(Context context){
         mContext = context;
         mRecordList = new ArrayList<>();
         mInflater = LayoutInflater.from(mContext);
-        mScrollState = false;
-    }
-
-    public void setScrollState(boolean scrollState) {
-        mScrollState = scrollState;
     }
 
     public void addRecords(List<Record> recordList){
@@ -63,298 +53,164 @@ public class ContentAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getCount() {
-        return mRecordList.size();
+    public RecordHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = mInflater.inflate(R.layout.item_content,parent,false);
+        RecordHolder holder = new RecordHolder(itemView);
+        return holder;
     }
 
     @Override
-    public Object getItem(int i) {
-        return mRecordList.get(i);
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return i;
-    }
-
-    @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        RecordHolder holder = null;
-        if(view == null){
-            view = mInflater.inflate(R.layout.item_content,viewGroup,false);
-            ImageView hotLabelImage = (ImageView) view.findViewById(R.id.hot_label_image);
-            ImageView avatarImage = (ImageView) view.findViewById(R.id.user_avatar_image);
-            TextView userNameText = (TextView) view.findViewById(R.id.user_name_text);
-            TextView contentText = (TextView) view.findViewById(R.id.content_text);
-            TextView categoryText = (TextView) view.findViewById(R.id.category_text);
-            ImageView largeImage = (ImageView) view.findViewById(R.id.large_image);
-            GridLayout thumbLayout = (GridLayout) view.findViewById(R.id.thumb_image_list);
-            ImageView thumbImage1 = (ImageView) view.findViewById(R.id.thumb_image_1);
-            ImageView thumbImage2 = (ImageView) view.findViewById(R.id.thumb_image_2);
-            ImageView thumbImage3 = (ImageView) view.findViewById(R.id.thumb_image_3);
-            ImageView thumbImage4 = (ImageView) view.findViewById(R.id.thumb_image_4);
-            ImageView thumbImage5 = (ImageView) view.findViewById(R.id.thumb_image_5);
-            ImageView thumbImage6 = (ImageView) view.findViewById(R.id.thumb_image_6);
-            ImageView thumbImage7 = (ImageView) view.findViewById(R.id.thumb_image_7);
-            ImageView thumbImage8 = (ImageView) view.findViewById(R.id.thumb_image_8);
-            ImageView thumbImage9 = (ImageView) view.findViewById(R.id.thumb_image_9);
-
-            FrameLayout videoLayout = (FrameLayout) view.findViewById(R.id.video_layout);
-            VideoView videoView = (VideoView) view.findViewById(R.id.video_view);
-            ImageView videoCaptureImage = (ImageView) view.findViewById(R.id.video_capture_image);
-            ImageView playIcon = (ImageView) view.findViewById(R.id.video_play_icon);
-
-            TextView hotCommentLabel = (TextView) view.findViewById(R.id.hot_comment_label);
-            ListView hotCommentList = (ListView) view.findViewById(R.id.hot_comment_list);
-
-            TextView diggCountText = (TextView) view.findViewById(R.id.digg_count_text);
-            TextView buryCountText = (TextView) view.findViewById(R.id.bury_count_text);
-            TextView commentCountText = (TextView) view.findViewById(R.id.comment_count_text);
-
-            holder = new RecordHolder();
-            holder.hotLabelImage = hotLabelImage;
-            holder.avatarImage = avatarImage;
-            holder.userNameText = userNameText;
-            holder.contentText = contentText;
-            holder.categoryText = categoryText;
-            holder.largeImage = largeImage;
-            holder.thumbParentLayout = thumbLayout;
-            holder.thumbImageList = new ImageView[9];
-            holder.thumbImageList[0] = thumbImage1;
-            holder.thumbImageList[1] = thumbImage2;
-            holder.thumbImageList[2] = thumbImage3;
-            holder.thumbImageList[3] = thumbImage4;
-            holder.thumbImageList[4] = thumbImage5;
-            holder.thumbImageList[5] = thumbImage6;
-            holder.thumbImageList[6] = thumbImage7;
-            holder.thumbImageList[7] = thumbImage8;
-            holder.thumbImageList[8] = thumbImage9;
-
-            holder.videoLayout = videoLayout;
-            holder.videoView = videoView;
-            holder.videoCaptureImage = videoCaptureImage;
-            holder.videoPlayIcon = playIcon;
-
-            holder.hotCommentLabel = hotCommentLabel;
-            holder.hotCommentList = hotCommentList;
-
-            holder.diggCountText = diggCountText;
-            holder.buryCountText = buryCountText;
-            holder.commentCountText = commentCountText;
-
-            view.setTag(holder);
-
-        }else{
-            holder = (RecordHolder) view.getTag();
-        }
-        Record record = mRecordList.get(i);
+    public void onBindViewHolder(RecordHolder holder, int position) {
+        Record record = mRecordList.get(position);
         final Group group = record.getGroup();
         if(group == null){
             Log.e(TAG,"Group为空：" + record.toString());
         }else{
-            boolean isHot = group.getStatusDesc().equals("热门投稿");
-            holder.hotLabelImage.setVisibility(isHot ? View.VISIBLE : View.GONE);
-            holder.avatarImage.setImageResource(R.drawable.default_round_head);
-            holder.userNameText.setText(group.getUser().getName());
-            holder.contentText.setText(group.getContent());
-            holder.categoryText.setText(group.getCategoryName());
-            holder.diggCountText.setText(group.getDiggCount() + "");
-            holder.buryCountText.setText(group.getBuryCount() + "");
-            holder.commentCountText.setText(group.getCommentCount() + "");
-            final ImageView imageView = holder.avatarImage;
-            ViewGroup.LayoutParams avatarParams = imageView.getLayoutParams();
-            avatarParams.width = DisplayUtils.dp2px(mContext,35);
-            avatarParams.height = DisplayUtils.dp2px(mContext,35);
-            loadImage(imageView,group.getUser().getAvatarUrl(), avatarParams);
-            //单张大图片
-            if(group.getLargeImage() != null){
-                ImageBean imageBean = group.getLargeImage();
-                String url = imageBean.getUrlList().get(0).getUrl();
-                ViewGroup.LayoutParams largeImageParams = holder.largeImage.getLayoutParams();
-
-                largeImageParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                /*largeImageParams.height = ViewGroup.LayoutParams.MATCH_PARENT;*/
-//                largeImageParams.width = imageBean.getWidth();
-//                largeImageParams.height = imageBean.getHeight();
-
-                String sizeInfo = String.format("(%d,%d)",imageBean.getrWidth(),imageBean.getrHeight());
-                //holder.contentText.append(s);
-                if(holder.largeImage.getId() == R.id.large_image){
-                    Log.d(TAG,"发现大图URL");
-                }
-                // TODO: 2017/7/15 setAdjustViewBounds据说要和setMaxWidth或setMaxHeight配合使用
-                holder.largeImage.setAdjustViewBounds(true);
-                holder.largeImage.setLayoutParams(largeImageParams);
-                holder.largeImage.setVisibility(View.VISIBLE);
-                //loadImage(holder.largeImage,url,largeImageParams);
-                if(mScrollState){//滑动中不加载图片
-                    holder.largeImage.setImageResource(R.drawable.large_loading);
-                }else{
-                    Glide.with(mContext).load(url).into(holder.largeImage);
-                }
-
-            }else{
-                holder.largeImage.setVisibility(View.GONE);
-            }
-            //多张缩略图
-            if(group.getThumbImageList() != null){
-                Log.d(TAG,"多张缩略图");
-                holder.thumbParentLayout.setVisibility(View.VISIBLE);
-                List<ImageBean> thumbImageList = group.getThumbImageList();
-                assert  thumbImageList.size() <= 9;
-                for(int j = 0; j < thumbImageList.size(); j++){
-                    ImageBean imageBean = thumbImageList.get(j);
-                    ViewGroup.LayoutParams thumbParams = holder.thumbImageList[j].getLayoutParams();
-                    thumbParams.width = imageBean.getWidth();
-                    thumbParams.height = imageBean.getHeight();
-                    if(mScrollState){
-                        holder.thumbImageList[j].setImageResource(R.drawable.large_loading);
-                    }else{
-                        loadImage(holder.thumbImageList[j],imageBean.getUrl(),thumbParams);
-                    }
-                }
-                for(int j = thumbImageList.size(); j < holder.thumbImageList.length; j++){
-                    holder.thumbImageList[j].setVisibility(View.GONE);
-                }
-            }else{
-                holder.thumbParentLayout.setVisibility(View.GONE);
-
-            }
-
-            if(group.getIsVideo() == 1){
-                final FrameLayout videoLayout = holder.videoLayout;
-                final ImageView videoCaptureImage = holder.videoCaptureImage;
-                final VideoView videoView = holder.videoView;
-                final ImageView videoPlayIcon = holder.videoPlayIcon;
-
-                videoLayout.setVisibility(View.VISIBLE);
-                videoCaptureImage.setVisibility(View.VISIBLE);
-                videoPlayIcon.setVisibility(View.VISIBLE);
-                final String captureImageUrl = group.getLargeCover().getUrlList().get(0).getUrl();
-                //Glide.with(mContext).load(captureImageUrl).into(holder.videoCaptureImage);
-                if(mScrollState){
-                    holder.videoCaptureImage.setImageResource(R.drawable.large_loading);
-                }else{
-                    loadImage(holder.videoCaptureImage,captureImageUrl,null);
-                }
-                Log.d("GlideListener",captureImageUrl);
-                int width = group.getVideoWidth();
-                int height = group.getVideoHeight();
-                ViewGroup.LayoutParams params = videoView.getLayoutParams();
-                params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-                //params.height = height;
-                videoView.setLayoutParams(params);
-                videoView.setVisibility(View.VISIBLE);
-                Uri uri = Uri.parse(group.getMp4Url());
-                MediaController controller = new MediaController(mContext);
-                controller.setVisibility(View.INVISIBLE);
-                videoView.setMediaController(controller);
-                videoView.setVideoURI(uri);
-                videoView.requestFocus();
-                holder.videoPlayIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        videoCaptureImage.setVisibility(View.GONE);
-                        videoPlayIcon.setVisibility(View.GONE);
-                        if(videoView.isPlaying()){
-                            videoView.resume();
-                        }else{
-                            videoView.start();
-                        }
-                    }
-                });
-                holder.videoLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(videoView.isPlaying()){
-                            videoView.pause();
-                            videoPlayIcon.setVisibility(View.VISIBLE);
-                        }else{
-                            videoView.resume();
-                            videoPlayIcon.setVisibility(View.GONE);
-                        }
-                    }
-                });
-                videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    @Override
-                    public void onCompletion(MediaPlayer mediaPlayer) {
-                        videoPlayIcon.setVisibility(View.VISIBLE);
-                    }
-                });
-
-
-
-            }else{
-                holder.videoLayout.setVisibility(View.GONE);
-                holder.videoView.setVisibility(View.GONE);
-            }
-
-
-            if(group.getHasComments() > 0){
-                holder.hotCommentLabel.setVisibility(View.VISIBLE);
-                holder.hotCommentList.setVisibility(View.VISIBLE);
-                List<Comment> commentList = record.getComments();
-                ContentHotCommentAdapter commentAdapter = new ContentHotCommentAdapter(mContext);
-                commentAdapter.setCommentList(commentList);
-                holder.hotCommentList.setAdapter(commentAdapter);
-            }else{
-                holder.hotCommentLabel.setVisibility(View.GONE);
-                holder.hotCommentList.setVisibility(View.GONE);
-            }
-
-            holder.commentCountText.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent commentIntent = new Intent(mContext, CommentActivity.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("group_id",group.getGroupId() + "");
-                    bundle.putSerializable("group",group);
-                    commentIntent.putExtras(bundle);
-                    mContext.startActivity(commentIntent);
-                }
-            });
-
-
+            bindCommonInfo(holder, group,record.getComments());
+            bindLargeImg(holder, group);
+            bindThumbImgList(holder, group);
+            bindVideoInfo(holder, group);
         }
-
-        return view;
     }
 
-    private void loadImage(final ImageView imageView, String url, final ViewGroup.LayoutParams params){
-        ImageLoader.getInstance().loadImage(url, new ImageLoadingListener() {
-            @Override
-            public void onLoadingStarted(String imageUri, View view) {
-                Log.d(TAG, "onLoadingStarted: ");
-            }
+    private void bindCommonInfo(RecordHolder holder,final Group group,List<Comment> commentList) {
+        boolean isHot = group.getStatusDesc().equals("热门投稿");
+        holder.hotLabelImage.setVisibility(isHot ? View.VISIBLE : View.GONE);
+        holder.avatarImage.setImageResource(R.drawable.default_round_head);
+        holder.userNameText.setText(group.getUser().getName());
+        holder.contentText.setText(group.getContent());
+        holder.categoryText.setText(group.getCategoryName());
+        holder.diggCountText.setText(group.getDiggCount() + "");
+        holder.buryCountText.setText(group.getBuryCount() + "");
+        holder.commentCountText.setText(group.getCommentCount() + "");
 
-            @Override
-            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                Log.d(TAG, "onLoadingFailed: ");
-            }
+        Glide.with(mContext).load(group.getUser().getAvatarUrl()).into(holder.avatarImage);
 
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                Log.d(TAG, "onLoadingComplete: ");
-                if(loadedImage != null){
-                    if(params != null){
-                        imageView.setLayoutParams(params);
-                    }
-                    //imageView.setImageBitmap(loadedImage);
-                    imageView.setImageBitmap(loadedImage);
-                    imageView.setVisibility(View.VISIBLE);
-                }else{
-                    Log.e(TAG, "onLoadingComplete: loadedImage is null");
-                }
-            }
+        if(group.getHasComments() > 0){
+            holder.hotCommentLabel.setVisibility(View.VISIBLE);
+            holder.hotCommentList.setVisibility(View.VISIBLE);
+            ContentHotCommentAdapter commentAdapter = new ContentHotCommentAdapter(mContext);
+            commentAdapter.setCommentList(commentList);
+            holder.hotCommentList.setAdapter(commentAdapter);
+        }else{
+            holder.hotCommentLabel.setVisibility(View.GONE);
+            holder.hotCommentList.setVisibility(View.GONE);
+        }
 
+        holder.commentCountText.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onLoadingCancelled(String imageUri, View view) {
-                Log.d(TAG, "onLoadingCancelled: ");
+            public void onClick(View view) {
+                Intent commentIntent = new Intent(mContext, CommentActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("group_id",group.getGroupId() + "");
+                bundle.putSerializable("group",group);
+                commentIntent.putExtras(bundle);
+                mContext.startActivity(commentIntent);
             }
         });
     }
 
-    public static class RecordHolder{
+    private void bindLargeImg(RecordHolder holder, Group group) {
+        //单张大图片
+        if(group.getLargeImage() != null){
+            String url = group.getLargeImage().getUrlList().get(0).getUrl();
+
+            ViewGroup.LayoutParams largeImageParams = holder.largeImage.getLayoutParams();
+            largeImageParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            if(holder.largeImage.getId() == R.id.large_image){
+                Log.d(TAG,"发现大图URL");
+            }
+            // TODO: 2017/7/15 setAdjustViewBounds据说要和setMaxWidth或setMaxHeight配合使用
+            holder.largeImage.setAdjustViewBounds(true);
+            holder.largeImage.setLayoutParams(largeImageParams);
+            holder.largeImage.setVisibility(View.VISIBLE);
+            Glide.with(mContext).load(url).into(holder.largeImage);
+        }else{
+            holder.largeImage.setVisibility(View.GONE);
+        }
+    }
+
+    private void bindThumbImgList(RecordHolder holder, Group group) {
+        //多张缩略图
+        if(group.getThumbImageList() != null){
+            Log.d(TAG,"多张缩略图");
+            holder.thumbParentLayout.setVisibility(View.VISIBLE);
+            List<ImageBean> thumbImageList = group.getThumbImageList();
+            assert  thumbImageList.size() <= 9;
+            for(int j = 0; j < thumbImageList.size(); j++){
+                ImageBean imageBean = thumbImageList.get(j);
+                RequestOptions options = new RequestOptions()
+                        .override(imageBean.getWidth(),imageBean.getHeight());
+                Glide.with(mContext).load(imageBean.getUrl()).apply(options).into(holder.thumbImageList[j]);
+            }
+            for(int j = thumbImageList.size(); j < holder.thumbImageList.length; j++){
+                holder.thumbImageList[j].setVisibility(View.GONE);
+            }
+        }else{
+            holder.thumbParentLayout.setVisibility(View.GONE);
+
+        }
+    }
+
+    private void bindVideoInfo(final RecordHolder holder, Group group) {
+        if(group.getIsVideo() == 1){
+            holder.videoLayout.setVisibility(View.VISIBLE);
+            holder.videoCaptureImage.setVisibility(View.VISIBLE);
+            holder.videoPlayIcon.setVisibility(View.VISIBLE);
+            holder.videoView.setVisibility(View.VISIBLE);
+
+            String captureImageUrl = group.getLargeCover().getUrlList().get(0).getUrl();
+            Glide.with(mContext).load(captureImageUrl).into(holder.videoCaptureImage);
+
+            ViewGroup.LayoutParams params = holder.videoView.getLayoutParams();
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            holder.videoView.setLayoutParams(params);
+
+            Uri uri = Uri.parse(group.getMp4Url());
+            MediaController controller = new MediaController(mContext);
+            controller.setVisibility(View.INVISIBLE);
+            holder.videoView.setMediaController(controller);
+            holder.videoView.setVideoURI(uri);
+            holder.videoView.requestFocus();
+            holder.videoPlayIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    holder.videoCaptureImage.setVisibility(View.GONE);
+                    holder.videoPlayIcon.setVisibility(View.GONE);
+                    if(holder.videoView.isPlaying()){
+                        holder.videoView.resume();
+                    }else{
+                        holder.videoView.start();
+                    }
+                }
+            });
+            holder.videoLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(holder.videoView.isPlaying()){
+                        holder.videoView.pause();
+                        holder.videoPlayIcon.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+            holder.videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    holder.videoPlayIcon.setVisibility(View.VISIBLE);
+                }
+            });
+        }else{
+            holder.videoLayout.setVisibility(View.GONE);
+            holder.videoView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return mRecordList.size();
+    }
+
+    public static class RecordHolder extends RecyclerView.ViewHolder{
         public ImageView hotLabelImage;
         public ImageView avatarImage;
         public TextView userNameText;
@@ -377,6 +233,37 @@ public class ContentAdapter extends BaseAdapter {
         public TextView buryCountText;
         public TextView commentCountText;
 
+        public RecordHolder(View itemView) {
+            super(itemView);
+            hotLabelImage = (ImageView) itemView.findViewById(R.id.hot_label_image);
+            avatarImage = (ImageView) itemView.findViewById(R.id.user_avatar_image);
+            userNameText = (TextView) itemView.findViewById(R.id.user_name_text);
+            contentText = (TextView) itemView.findViewById(R.id.content_text);
+            categoryText = (TextView) itemView.findViewById(R.id.category_text);
+            largeImage = (ImageView) itemView.findViewById(R.id.large_image);
+            thumbParentLayout = (GridLayout) itemView.findViewById(R.id.thumb_image_list);
+            thumbImageList = new ImageView[9];
+            thumbImageList[0] = (ImageView) itemView.findViewById(R.id.thumb_image_1);
+            thumbImageList[1] = (ImageView) itemView.findViewById(R.id.thumb_image_2);
+            thumbImageList[2] = (ImageView) itemView.findViewById(R.id.thumb_image_3);
+            thumbImageList[3] = (ImageView) itemView.findViewById(R.id.thumb_image_4);
+            thumbImageList[4] = (ImageView) itemView.findViewById(R.id.thumb_image_5);
+            thumbImageList[5] = (ImageView) itemView.findViewById(R.id.thumb_image_6);
+            thumbImageList[6] = (ImageView) itemView.findViewById(R.id.thumb_image_7);
+            thumbImageList[7] = (ImageView) itemView.findViewById(R.id.thumb_image_8);
+            thumbImageList[8] = (ImageView) itemView.findViewById(R.id.thumb_image_9);
 
+            videoLayout = (FrameLayout) itemView.findViewById(R.id.video_layout);
+            videoView = (VideoView) itemView.findViewById(R.id.video_view);
+            videoCaptureImage = (ImageView) itemView.findViewById(R.id.video_capture_image);
+            videoPlayIcon = (ImageView) itemView.findViewById(R.id.video_play_icon);
+
+            hotCommentLabel = (TextView) itemView.findViewById(R.id.hot_comment_label);
+            hotCommentList = (ListView) itemView.findViewById(R.id.hot_comment_list);
+
+            diggCountText = (TextView) itemView.findViewById(R.id.digg_count_text);
+            buryCountText = (TextView) itemView.findViewById(R.id.bury_count_text);
+            commentCountText = (TextView) itemView.findViewById(R.id.comment_count_text);
+        }
     }
 }

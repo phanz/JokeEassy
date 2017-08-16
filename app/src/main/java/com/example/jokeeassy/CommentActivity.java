@@ -136,6 +136,12 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         mContentScrollView.setOnTouchListener(this);
 
         if(mGroup.getLargeImage() != null){
+            ViewGroup.LayoutParams largeImageParams = mLargeImage.getLayoutParams();
+            largeImageParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            // TODO: 2017/7/15 setAdjustViewBounds据说要和setMaxWidth或setMaxHeight配合使用
+            mLargeImage.setAdjustViewBounds(true);
+            mLargeImage.setLayoutParams(largeImageParams);
+            mLargeImage.setVisibility(View.VISIBLE);
             Glide.with(this).load(mGroup.getLargeImage().getUrlList().get(0).getUrl()).into(mLargeImage);
             mLargeImage.setVisibility(View.VISIBLE);
         }else{
