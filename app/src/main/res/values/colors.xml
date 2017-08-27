@@ -21,5 +21,6 @@
     <color name="bg_share_comment">#4C4034</color>
     <color name="bg_red">#FE819F</color>
     <color name="bg_gray">#F8F8F8</color>
+    <color name="orange">#FF8400</color>
 
 </resources>

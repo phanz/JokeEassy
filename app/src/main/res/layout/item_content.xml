@@ -74,10 +74,11 @@
 
        <ImageView
            android:id="@+id/large_image"
-           android:layout_width="wrap_content"
+           android:layout_width="match_parent"
            android:layout_height="wrap_content"
            android:layout_marginTop="8dp"
-           android:src="@drawable/test"
+           android:background="@color/bg_gray"
+           android:src="@drawable/large_loading"
            android:layout_centerHorizontal="true"
            android:layout_below="@id/category_text"
            android:visibility="gone"/>
@@ -99,7 +100,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p1"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_2"
@@ -107,7 +108,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p2"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_3"
@@ -115,7 +116,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p3"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_4"
@@ -123,7 +124,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p4"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_5"
@@ -131,7 +132,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p5"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_6"
@@ -139,7 +140,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p6"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_7"
@@ -147,7 +148,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p7"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_8"
@@ -155,7 +156,7 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p8"/>
+               android:scaleType="center"/>
 
            <ImageView
                android:id="@+id/thumb_image_9"
@@ -163,44 +164,19 @@
                android:layout_height="@dimen/thumb_image_length"
                android:layout_marginLeft="@dimen/thumb_image_padding"
                android:layout_marginBottom="@dimen/thumb_image_padding"
-               android:background="@drawable/p8"/>
+               android:scaleType="center"/>
 
        </GridLayout>
 
-       <FrameLayout
-           android:id="@+id/video_layout"
+       <com.example.widgets.SurfaceVideoView
+           android:id="@+id/player_view"
            android:layout_width="match_parent"
            android:layout_height="match_parent"
            android:layout_marginTop="8dp"
            android:layout_marginLeft="12dp"
            android:layout_marginRight="12dp"
            android:layout_centerHorizontal="true"
-           android:layout_below="@id/thumb_image_list"
-           android:visibility="gone">
-
-           <VideoView
-               android:id="@+id/video_view"
-               android:layout_width="match_parent"
-               android:layout_height="match_parent"
-               android:layout_gravity="center"
-               android:visibility="gone"/>
-
-           <ImageView
-               android:id="@+id/video_capture_image"
-               android:layout_width="match_parent"
-               android:layout_height="match_parent"
-               android:layout_gravity="center"
-               android:src="@drawable/test"
-               android:visibility="visible"/>
-
-           <ImageView
-               android:id="@+id/video_play_icon"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:src="@drawable/video_start_play"
-               android:layout_gravity="center"
-               android:visibility="gone"/>
-       </FrameLayout>
+           android:layout_below="@id/thumb_image_list"/>
 
        <LinearLayout
            android:id="@+id/hot_comment_layout"
@@ -211,7 +187,7 @@
            android:layout_marginRight="12dp"
            android:orientation="vertical"
            android:background="@color/bg_gray"
-           android:layout_below="@id/video_layout">
+           android:layout_below="@id/player_view">
 
            <TextView
                android:id="@+id/hot_comment_label"

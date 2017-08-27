@@ -2,30 +2,42 @@ package com.example.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.view.WindowManager;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
+import com.example.GlideApp;
 import com.example.jokeeassy.CommentActivity;
 import com.example.jokeeassy.R;
 import com.example.model.Comment;
 import com.example.model.Group;
 import com.example.model.ImageBean;
 import com.example.model.Record;
+import com.example.utils.DateUtils;
+import com.example.utils.Utils;
+import com.example.widgets.SurfaceVideoView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,20 +52,35 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
     private List<Record> mRecordList;
     private Context mContext;
     private LayoutInflater mInflater;
+    private int mItemWidth;
+
+    private Point mScreenSize;
 
     public ContentAdapter(Context context){
         mContext = context;
         mRecordList = new ArrayList<>();
         mInflater = LayoutInflater.from(mContext);
+        mScreenSize = new Point();
+        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getSize(mScreenSize);
     }
 
     public void addRecords(List<Record> recordList){
-        mRecordList.addAll(0,recordList);
+        //if(mRecordList.size() > 0) return;
+        for(Record record : recordList){
+            if(record.getGroup() != null){
+                mRecordList.add(0,record);
+                //break;
+            }else{
+                Log.d(TAG,"监测到空Group");
+            }
+        }
         notifyDataSetChanged();
     }
 
     @Override
     public RecordHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        mItemWidth = parent.getWidth();
         View itemView = mInflater.inflate(R.layout.item_content,parent,false);
         RecordHolder holder = new RecordHolder(itemView);
         return holder;
@@ -110,21 +137,29 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
         });
     }
 
-    private void bindLargeImg(RecordHolder holder, Group group) {
+    private void bindLargeImg(final RecordHolder holder, Group group) {
         //单张大图片
         if(group.getLargeImage() != null){
-            String url = group.getLargeImage().getUrlList().get(0).getUrl();
-
-            ViewGroup.LayoutParams largeImageParams = holder.largeImage.getLayoutParams();
-            largeImageParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            if(holder.largeImage.getId() == R.id.large_image){
-                Log.d(TAG,"发现大图URL");
-            }
-            // TODO: 2017/7/15 setAdjustViewBounds据说要和setMaxWidth或setMaxHeight配合使用
-            holder.largeImage.setAdjustViewBounds(true);
-            holder.largeImage.setLayoutParams(largeImageParams);
+            ImageBean imageBean = group.getLargeImage();
+            final String url = imageBean.getUrlList().get(0).getUrl();
             holder.largeImage.setVisibility(View.VISIBLE);
-            Glide.with(mContext).load(url).into(holder.largeImage);
+            holder.largeImage.setScaleType(ImageView.ScaleType.CENTER);
+
+            int width = mScreenSize.x;
+            int height = (int)(imageBean.getHeight() * (float)mScreenSize.x / imageBean.getWidth());
+
+            ViewGroup.LayoutParams params = holder.largeImage.getLayoutParams();
+            params.width = width;
+            params.height = height;
+            holder.largeImage.setLayoutParams(params);
+
+            GlideApp.with(mContext).load(url)
+                    .placeholder(R.drawable.large_loading)
+                    .override(width,height)
+                    .centerCrop()
+                    .into(holder.largeImage);
+
+
         }else{
             holder.largeImage.setVisibility(View.GONE);
         }
@@ -139,9 +174,12 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
             assert  thumbImageList.size() <= 9;
             for(int j = 0; j < thumbImageList.size(); j++){
                 ImageBean imageBean = thumbImageList.get(j);
-                RequestOptions options = new RequestOptions()
-                        .override(imageBean.getWidth(),imageBean.getHeight());
-                Glide.with(mContext).load(imageBean.getUrl()).apply(options).into(holder.thumbImageList[j]);
+
+                GlideApp.with(mContext)
+                        .load(imageBean.getUrl())
+                        .override(imageBean.getWidth(),imageBean.getHeight())
+                        .placeholder(R.drawable.large_loading)
+                        .into(holder.thumbImageList[j]);
             }
             for(int j = thumbImageList.size(); j < holder.thumbImageList.length; j++){
                 holder.thumbImageList[j].setVisibility(View.GONE);
@@ -154,55 +192,43 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
 
     private void bindVideoInfo(final RecordHolder holder, Group group) {
         if(group.getIsVideo() == 1){
-            holder.videoLayout.setVisibility(View.VISIBLE);
-            holder.videoCaptureImage.setVisibility(View.VISIBLE);
-            holder.videoPlayIcon.setVisibility(View.VISIBLE);
-            holder.videoView.setVisibility(View.VISIBLE);
+            SurfaceVideoView playerView = holder.playerView;
+            playerView.setVisibility(View.VISIBLE);
 
             String captureImageUrl = group.getLargeCover().getUrlList().get(0).getUrl();
-            Glide.with(mContext).load(captureImageUrl).into(holder.videoCaptureImage);
+            playerView.setVideoUri(group.getMp4Url());
 
-            ViewGroup.LayoutParams params = holder.videoView.getLayoutParams();
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            holder.videoView.setLayoutParams(params);
+            SpannableString spanStr = Utils.makeColorSpan(
+                    new String[]{group.getPlayCount()+"","次播放"},
+                    new int[]{Color.argb(0xff,0xff,0x84,0),Color.WHITE});
+            playerView.setLeftBottomText(spanStr);
+            playerView.setRightBottomText(DateUtils.secondToDuration((int)group.getDuration()));
 
-            Uri uri = Uri.parse(group.getMp4Url());
-            MediaController controller = new MediaController(mContext);
-            controller.setVisibility(View.INVISIBLE);
-            holder.videoView.setMediaController(controller);
-            holder.videoView.setVideoURI(uri);
-            holder.videoView.requestFocus();
-            holder.videoPlayIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    holder.videoCaptureImage.setVisibility(View.GONE);
-                    holder.videoPlayIcon.setVisibility(View.GONE);
-                    if(holder.videoView.isPlaying()){
-                        holder.videoView.resume();
-                    }else{
-                        holder.videoView.start();
-                    }
-                }
-            });
-            holder.videoLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(holder.videoView.isPlaying()){
-                        holder.videoView.pause();
-                        holder.videoPlayIcon.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-            holder.videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    holder.videoPlayIcon.setVisibility(View.VISIBLE);
-                }
-            });
+            int width = mScreenSize.x;
+            int height = (int)(group.getVideoHeight() * (float)width / group.getVideoWidth());
+            ViewGroup.LayoutParams params = playerView.getLayoutParams();
+            params.width = width;
+            params.height = height;
+            playerView.setLayoutParams(params);
+
+            params = playerView.getCaptureImage().getLayoutParams();
+            params.width = width;
+            params.height = height;
+            playerView.getCaptureImage().setLayoutParams(params);
+            GlideApp.with(mContext).
+                    load(captureImageUrl)
+                    .centerCrop()
+                    .into(playerView.getCaptureImage());
+
         }else{
-            holder.videoLayout.setVisibility(View.GONE);
-            holder.videoView.setVisibility(View.GONE);
+            holder.playerView.setVisibility(View.GONE);
         }
+    }
+
+    private void loadResizableImage(final ImageView imageView,int placeholderResId, String url) {
+
+
+
     }
 
     @Override
@@ -221,10 +247,7 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
         public GridLayout thumbParentLayout;
         public ImageView[] thumbImageList;
 
-        public FrameLayout videoLayout;
-        public VideoView videoView;
-        public ImageView videoCaptureImage;
-        public ImageView videoPlayIcon;
+        public SurfaceVideoView playerView;
 
         public TextView hotCommentLabel;
         public ListView hotCommentList;
@@ -253,10 +276,7 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
             thumbImageList[7] = (ImageView) itemView.findViewById(R.id.thumb_image_8);
             thumbImageList[8] = (ImageView) itemView.findViewById(R.id.thumb_image_9);
 
-            videoLayout = (FrameLayout) itemView.findViewById(R.id.video_layout);
-            videoView = (VideoView) itemView.findViewById(R.id.video_view);
-            videoCaptureImage = (ImageView) itemView.findViewById(R.id.video_capture_image);
-            videoPlayIcon = (ImageView) itemView.findViewById(R.id.video_play_icon);
+            playerView = (SurfaceVideoView) itemView.findViewById(R.id.player_view);
 
             hotCommentLabel = (TextView) itemView.findViewById(R.id.hot_comment_label);
             hotCommentList = (ListView) itemView.findViewById(R.id.hot_comment_list);

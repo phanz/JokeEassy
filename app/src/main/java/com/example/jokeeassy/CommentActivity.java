@@ -1,7 +1,10 @@
 package com.example.jokeeassy;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -9,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,13 +30,19 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
+import com.example.GlideApp;
 import com.example.adapter.CommentAdapter;
 import com.example.http.HttpDataRepository;
 import com.example.model.Comment;
 import com.example.model.CommentResponse;
 import com.example.model.CommentSet;
 import com.example.model.Group;
+import com.example.model.ImageBean;
+import com.example.utils.DateUtils;
+import com.example.utils.Utils;
 import com.example.widget.TitleBar;
+import com.example.widgets.SimpleDividerDecoration;
+import com.example.widgets.SurfaceVideoView;
 
 import java.util.List;
 
@@ -52,10 +62,8 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
     private TextView mContentText;
     private TextView mCategoryText;
     private ImageView mLargeImage;
-    private FrameLayout mVideoLayout;
-    private ImageView mVideoPlayIcon;
-    private ImageView mVideoCaptureImage;
-    private VideoView mVideoView;
+
+    private SurfaceVideoView mVideoView;
 
     private TextView mHotCommentLabel;
     private ListView mHotCommentList;
@@ -82,6 +90,8 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
     private int mOffset;
     private boolean mHasMore;
 
+    private Point mScreenSize;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +101,10 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             getWindow().setStatusBarColor(getResources().getColor(R.color.statusBar));
         }
+
+        mScreenSize = new Point();
+        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        wm.getDefaultDisplay().getSize(mScreenSize);
 
         ButterKnife.bind(this);
         TitleBar titleBar = (TitleBar) findViewById(R.id.title_bar);
@@ -119,10 +133,7 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         mCategoryText = (TextView) contentLayout.findViewById(R.id.category_text);
         mLargeImage = (ImageView) contentLayout.findViewById(R.id.large_image);
 
-        mVideoLayout = (FrameLayout) contentLayout.findViewById(R.id.video_layout);
-        mVideoPlayIcon = (ImageView) contentLayout.findViewById(R.id.video_play_icon);
-        mVideoCaptureImage = (ImageView) contentLayout.findViewById(R.id.video_capture_image);
-        mVideoView = (VideoView) contentLayout.findViewById(R.id.video_view);
+        mVideoView = (SurfaceVideoView) contentLayout.findViewById(R.id.player_view);
 
         mHotCommentLabel = (TextView) contentLayout.findViewById(R.id.hot_comment_label);
         mHotCommentList = (ListView) contentLayout.findViewById(R.id.hot_comment_list);
@@ -135,66 +146,57 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         mContentScrollView.setOnTouchListener(this);
 
         if(mGroup.getLargeImage() != null){
-            ViewGroup.LayoutParams largeImageParams = mLargeImage.getLayoutParams();
-            largeImageParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            // TODO: 2017/7/15 setAdjustViewBounds据说要和setMaxWidth或setMaxHeight配合使用
-            mLargeImage.setAdjustViewBounds(true);
-            mLargeImage.setLayoutParams(largeImageParams);
+
+            ImageBean imageBean = mGroup.getLargeImage();
+            final String url = imageBean.getUrlList().get(0).getUrl();
             mLargeImage.setVisibility(View.VISIBLE);
-            Glide.with(this).load(mGroup.getLargeImage().getUrlList().get(0).getUrl()).into(mLargeImage);
-            mLargeImage.setVisibility(View.VISIBLE);
+            mLargeImage.setScaleType(ImageView.ScaleType.CENTER);
+
+            int width = mScreenSize.x;
+            int height = (int)(imageBean.getHeight() * (float)mScreenSize.x / imageBean.getWidth());
+
+            ViewGroup.LayoutParams params = mLargeImage.getLayoutParams();
+            params.width = width;
+            params.height = height;
+            mLargeImage.setLayoutParams(params);
+
+            GlideApp.with(this).load(url)
+                    .placeholder(R.drawable.large_loading)
+                    .override(width,height)
+                    .centerCrop()
+                    .into(mLargeImage);
         }else{
             mLargeImage.setVisibility(View.GONE);
         }
 
         if(mGroup.getIsVideo() == 1){
-            mVideoLayout.setVisibility(View.VISIBLE);
-            mVideoCaptureImage.setVisibility(View.VISIBLE);
-            mVideoPlayIcon.setVisibility(View.VISIBLE);
-            mVideoView.setVisibility(View.VISIBLE);
 
             String captureImageUrl = mGroup.getLargeCover().getUrlList().get(0).getUrl();
-            Glide.with(this).load(captureImageUrl).into(mVideoCaptureImage);
+            mVideoView.setVideoUri(mGroup.getMp4Url());
 
+            SpannableString spanStr = Utils.makeColorSpan(
+                    new String[]{mGroup.getPlayCount()+"","次播放"},
+                    new int[]{Color.argb(0xff,0xff,0x84,0),Color.WHITE});
+            mVideoView.setLeftBottomText(spanStr);
+            mVideoView.setRightBottomText(DateUtils.secondToDuration((int)mGroup.getDuration()));
+
+            int width = mScreenSize.x;
+            int height = (int)(mGroup.getVideoHeight() * (float)width / mGroup.getVideoWidth());
             ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
-            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.width = width;
+            params.height = height;
             mVideoView.setLayoutParams(params);
 
-            Uri uri = Uri.parse(mGroup.getMp4Url());
-            MediaController controller = new MediaController(this);
-            controller.setVisibility(View.INVISIBLE);
-            mVideoView.setMediaController(controller);
-            mVideoView.setVideoURI(uri);
-            mVideoView.requestFocus();
-            mVideoPlayIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mVideoCaptureImage.setVisibility(View.GONE);
-                    mVideoPlayIcon.setVisibility(View.GONE);
-                    if(mVideoView.isPlaying()){
-                        mVideoView.resume();
-                    }else{
-                        mVideoView.start();
-                    }
-                }
-            });
-            mVideoLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(mVideoView.isPlaying()){
-                        mVideoView.pause();
-                        mVideoPlayIcon.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-            mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mediaPlayer) {
-                    mVideoPlayIcon.setVisibility(View.VISIBLE);
-                }
-            });
+            params = mVideoView.getCaptureImage().getLayoutParams();
+            params.width = width;
+            params.height = height;
+            mVideoView.getCaptureImage().setLayoutParams(params);
+            GlideApp.with(this).
+                    load(captureImageUrl)
+                    .centerCrop()
+                    .into(mVideoView.getCaptureImage());
+
         }else{
-            mVideoLayout.setVisibility(View.GONE);
             mVideoView.setVisibility(View.GONE);
         }
 
@@ -217,6 +219,9 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
 
         mTopCommentsList.setLayoutManager(new LinearLayoutManager(this));
         mRecentCommentsList.setLayoutManager(new LinearLayoutManager(this));
+
+        mTopCommentsList.addItemDecoration(new SimpleDividerDecoration());
+        mRecentCommentsList.addItemDecoration(new SimpleDividerDecoration());
 
         mTopAdapter = new CommentAdapter(this);
         mRecentAdapter = new CommentAdapter(this);

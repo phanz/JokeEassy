@@ -80,7 +80,7 @@ public class HomeContentFragment extends Fragment
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mContentListView = (RecyclerView) view.findViewById(R.id.content_list_view);
         mContentListView.setAdapter(mContentAdapter);
-        //mContentListView.addOnScrollListener(new MyScrollListener());
+        mContentListView.addOnScrollListener(new MyScrollListener());
         mContentListView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //mContentListView.addItemDecoration(new DividerItemDecoration(getActivity(),LinearLayoutManager.VERTICAL));
         mContentListView.addItemDecoration(new SimplePaddingDecoration());
@@ -175,11 +175,6 @@ public class HomeContentFragment extends Fragment
                     Glide.with(getActivity()).pauseRequests();
                     break;
             }
-        }
-
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
         }
     }
 

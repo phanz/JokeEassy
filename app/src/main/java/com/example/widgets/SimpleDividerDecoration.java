@@ -21,7 +21,7 @@ public class SimpleDividerDecoration extends RecyclerView.ItemDecoration{
     public SimpleDividerDecoration(){
         dividerHeight = DIVIDER_HEIGHT;
         dividerPaint = new Paint();
-        dividerPaint.setColor(Color.RED);
+        dividerPaint.setColor(Color.GRAY);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class SimpleDividerDecoration extends RecyclerView.ItemDecoration{
             View view = parent.getChildAt(i);
             int top = view.getBottom();
             int bottom = top + dividerHeight;
-            c.drawRect(left,top,right,bottom,dividerPaint);
+            c.drawRect(left + 80,top,right - 80,bottom,dividerPaint);
         }
     }
 }
