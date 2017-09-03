@@ -46,6 +46,7 @@ import com.example.widgets.SurfaceVideoView;
 
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
@@ -55,33 +56,53 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
 
     public static final String TAG = "CommentActivity";
 
-    private NestedScrollView mContentScrollView;
-    private ImageView mHotLabelImage;
-    private ImageView mUserAvatarImage;
-    private TextView mUserNameText;
-    private TextView mContentText;
-    private TextView mCategoryText;
-    private ImageView mLargeImage;
+    @BindView(R.id.title_bar)
+    public TitleBar titleBar;
 
-    private SurfaceVideoView mVideoView;
+    @BindView(R.id.detail_layout)
+    public NestedScrollView mContentScrollView;
 
-    private TextView mHotCommentLabel;
-    private ListView mHotCommentList;
+    @BindView(R.id.hot_label_image)
+    public ImageView mHotLabelImage;
+    @BindView(R.id.user_avatar_image)
+    public ImageView mUserAvatarImage;
 
-    private TextView mDiggCountText;
-    private TextView mBuryCountText;
-    private TextView mCommentCountText;
+    @BindView(R.id.user_name_text)
+    public TextView mUserNameText;
+    @BindView(R.id.content_text)
+    public TextView mContentText;
+    @BindView(R.id.category_text)
+    public TextView mCategoryText;
+    @BindView(R.id.large_image)
+    public ImageView mLargeImage;
+    @BindView(R.id.player_view)
+    public SurfaceVideoView mVideoView;
+    @BindView(R.id.hot_comment_label)
+    public TextView mHotCommentLabel;
+    @BindView(R.id.hot_comment_list)
+    public ListView mHotCommentList;
 
+    @BindView(R.id.digg_count_text)
+    public TextView mDiggCountText;
+    @BindView(R.id.bury_count_text)
+    public TextView mBuryCountText;
+    @BindView(R.id.comment_count_text)
+    public TextView mCommentCountText;
 
-    private TextView mTopCommentsText;
-    private RecyclerView mTopCommentsList;
-    private TextView mRecentCommentsText;
-    private RecyclerView mRecentCommentsList;
+    @BindView(R.id.top_comment_text)
+    public TextView mTopCommentsText;
+    @BindView(R.id.top_comment_list)
+    public RecyclerView mTopCommentsList;
+    @BindView(R.id.recent_text)
+    public TextView mRecentCommentsText;
+    @BindView(R.id.recent_text_list)
+    public RecyclerView mRecentCommentsList;
 
-    private CommentAdapter mTopAdapter;
-    private CommentAdapter mRecentAdapter;
+    @BindView(R.id.comment_input)
+    public EditText mCommentInput;
 
-    private EditText mCommentInput;
+    public CommentAdapter mTopAdapter;
+    public CommentAdapter mRecentAdapter;
 
     private GestureDetector mGestureDetector;
 
@@ -107,7 +128,7 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         wm.getDefaultDisplay().getSize(mScreenSize);
 
         ButterKnife.bind(this);
-        TitleBar titleBar = (TitleBar) findViewById(R.id.title_bar);
+
         titleBar.setLeftImageResource(R.drawable.ic_back_normal);
         titleBar.setTitle("详情");
         titleBar.addAction(new TitleBar.TextAction("举报") {
@@ -122,25 +143,6 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         //String groupId = intent.getStringExtra("group_id");
         Bundle bundle = intent.getExtras();
         mGroup = (Group)bundle.getSerializable("group");
-
-        mContentScrollView = (NestedScrollView) findViewById(R.id.detail_layout);
-        RelativeLayout contentLayout = (RelativeLayout) findViewById(R.id.item_content) ;
-
-        mHotLabelImage = (ImageView) contentLayout.findViewById(R.id.hot_label_image);
-        mUserAvatarImage = (ImageView) contentLayout.findViewById(R.id.user_avatar_image);
-        mUserNameText = (TextView) contentLayout.findViewById(R.id.user_name_text);
-        mContentText = (TextView) contentLayout.findViewById(R.id.content_text);
-        mCategoryText = (TextView) contentLayout.findViewById(R.id.category_text);
-        mLargeImage = (ImageView) contentLayout.findViewById(R.id.large_image);
-
-        mVideoView = (SurfaceVideoView) contentLayout.findViewById(R.id.player_view);
-
-        mHotCommentLabel = (TextView) contentLayout.findViewById(R.id.hot_comment_label);
-        mHotCommentList = (ListView) contentLayout.findViewById(R.id.hot_comment_list);
-
-        mDiggCountText = (TextView) contentLayout.findViewById(R.id.digg_count_text);
-        mBuryCountText = (TextView) contentLayout.findViewById(R.id.bury_count_text);
-        mCommentCountText = (TextView) contentLayout.findViewById(R.id.comment_count_text);
 
         mGestureDetector = new GestureDetector(this,new SimpleGestureListener());
         mContentScrollView.setOnTouchListener(this);
@@ -206,13 +208,6 @@ public class CommentActivity extends Activity implements View.OnTouchListener{
         mUserNameText.setText(mGroup.getUser().getName());
         mContentText.setText(mGroup.getText());
         mCategoryText.setText(mGroup.getCategoryName());
-
-
-        mTopCommentsText = (TextView) findViewById(R.id.top_comment_text);
-        mTopCommentsList = (RecyclerView) findViewById(R.id.top_comment_list);
-        mRecentCommentsText = (TextView) findViewById(R.id.recent_text);
-        mRecentCommentsList = (RecyclerView) findViewById(R.id.recent_text_list);
-        mCommentInput = (EditText) findViewById(R.id.comment_input);
 
         mTopCommentsList.setNestedScrollingEnabled(false);
         mRecentCommentsList.setNestedScrollingEnabled(false);

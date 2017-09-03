@@ -12,10 +12,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.adapter.ContentAdapter;
+import com.example.utils.CacheUtils;
 import com.example.widgets.SimplePaddingDecoration;
 import com.example.http.HttpDataRepository;
 import com.example.jokeeassy.R;
@@ -84,8 +86,24 @@ public class HomeContentFragment extends Fragment
         mContentListView.setLayoutManager(new LinearLayoutManager(getActivity()));
         //mContentListView.addItemDecoration(new DividerItemDecoration(getActivity(),LinearLayoutManager.VERTICAL));
         mContentListView.addItemDecoration(new SimplePaddingDecoration());
+
+        mContentListView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                mContentListView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                int contentWidth = mContentListView.getWidth()
+                        - mContentListView.getPaddingLeft() - mContentListView.getPaddingRight();
+                mContentAdapter.setMaxWidth(contentWidth);
+
+                List<Record> recordList = CacheUtils.getContentCache(mContentType);
+                mContentAdapter.addRecords(true,recordList);
+            }
+        });
         return view;
     }
+
+
 
     @Override
     public void onRefresh() {
@@ -110,10 +128,10 @@ public class HomeContentFragment extends Fragment
     }
 
     public void fetchContent(OnFetchCompleteListener listener){
-        getContent(mContentType,listener);
+        pullContent(true,mContentType,listener);
     }
 
-    private void getContent(String contentType, final OnFetchCompleteListener listener){
+    private void pullContent(final boolean topRefresh,String contentType, final OnFetchCompleteListener listener){
         HttpDataRepository.getInstance().getContents(contentType,new Observer<ContentResponse>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
@@ -122,8 +140,13 @@ public class HomeContentFragment extends Fragment
 
             @Override
             public void onNext(@NonNull ContentResponse jsonResponse) {
+                if(jsonResponse == null){
+                    Log.e(TAG,"jsonResponse为空");
+                    return;
+                }
                 List<Record> recordList = jsonResponse.getData().getData();
-                mContentAdapter.addRecords(recordList);
+                mContentAdapter.addRecords(topRefresh,recordList);
+                CacheUtils.saveContentCache(mContentType,recordList);
                 if(listener != null){
                     listener.onFetchComplete(0);
                 }
@@ -132,7 +155,7 @@ public class HomeContentFragment extends Fragment
             @Override
             public void onError(@NonNull Throwable e) {
                 e.printStackTrace();
-                Log.d(TAG, "onError: " + "推荐页内容加载错误");
+                Log.d(TAG, "onError: " + mTitle + "页内容加载错误");
                 mSwipeRefreshLayout.setRefreshing(false);
                 if(listener != null){
                     listener.onFetchComplete(1);
@@ -174,6 +197,20 @@ public class HomeContentFragment extends Fragment
                 case RecyclerView.SCROLL_STATE_SETTLING://正在滚动
                     Glide.with(getActivity()).pauseRequests();
                     break;
+            }
+
+            //判断滑动到了底部
+            LinearLayoutManager lm = (LinearLayoutManager) recyclerView.getLayoutManager();
+            int totalItemCount = recyclerView.getAdapter().getItemCount();
+            int lastVisibleItemPosition = lm.findLastVisibleItemPosition();
+            int visibleItemCount = recyclerView.getChildCount();
+
+            if (newState == RecyclerView.SCROLL_STATE_IDLE
+                    && lastVisibleItemPosition == totalItemCount - 1
+                    && visibleItemCount > 0) {
+                //加载更多
+                Toast.makeText(getActivity(),"滑动到了底部",Toast.LENGTH_SHORT).show();
+                pullContent(false,mContentType,null);
             }
         }
     }

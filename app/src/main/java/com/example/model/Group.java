@@ -165,6 +165,12 @@ public class Group implements Serializable{
     @SerializedName("is_video")
     private int isVideo;
 
+    /**=================以下为段友秀页新增字段===================*/
+    @SerializedName("video_wh_ratio")
+    private double videoWhRatio;
+    @SerializedName("download_url")
+    private String downloadUrl;
+
     public String getText() {
         return text;
     }
@@ -747,5 +753,21 @@ public class Group implements Serializable{
 
     public void setIsVideo(int isVideo) {
         this.isVideo = isVideo;
+    }
+
+    public double getVideoWhRatio() {
+        return videoWhRatio;
+    }
+
+    public void setVideoWhRatio(double videoWhRatio) {
+        this.videoWhRatio = videoWhRatio;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
     }
 }

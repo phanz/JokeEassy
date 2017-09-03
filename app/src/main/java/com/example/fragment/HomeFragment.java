@@ -38,7 +38,7 @@ public class HomeFragment extends Fragment implements ViewPager.OnPageChangeList
         mHomeSubFragment = new ArrayList<>();
         mHomeSubFragment.add(HomeContentFragment.newInstance("推荐","-101"));
         mHomeSubFragment.add(HomeContentFragment.newInstance("视频","-104"));
-        mHomeSubFragment.add(HomeContentFragment.newInstance("段友秀",""));
+        mHomeSubFragment.add(HomeContentFragment.newInstance("段友秀","-301"));
         mHomeSubFragment.add(HomeContentFragment.newInstance("图片","-103"));
         mHomeSubFragment.add(HomeContentFragment.newInstance("段子","-102"));
         mHomeSubFragment.add(HomeContentFragment.newInstance("订阅",""));

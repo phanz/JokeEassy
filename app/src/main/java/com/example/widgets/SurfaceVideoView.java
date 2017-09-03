@@ -69,6 +69,7 @@ public class SurfaceVideoView extends RelativeLayout implements SurfaceHolder.Ca
         videoBottomLayout = (RelativeLayout)findViewById(R.id.bottom_group);
         videoPlayTimeText = (TextView) findViewById(R.id.video_play_time);
         videoSeekBar = (SeekBar) findViewById(R.id.video_time_seek_bar);
+        videoSeekBar.setVisibility(View.GONE);
         videoTotalTimeText = (TextView) findViewById(R.id.video_total_time);
 
         videoSurfaceView.getHolder().addCallback(this);
@@ -103,6 +104,7 @@ public class SurfaceVideoView extends RelativeLayout implements SurfaceHolder.Ca
                 public void onPrepared(MediaPlayer mp) {
                     videoProgressBar.setVisibility(View.GONE);
                     videoPlayBtn.setVisibility(View.VISIBLE);
+                    mCaptureImage.setVisibility(View.VISIBLE);
                 }
             });
             videoPlayBtn.setOnClickListener(new OnClickListener() {
@@ -123,6 +125,7 @@ public class SurfaceVideoView extends RelativeLayout implements SurfaceHolder.Ca
                     if(mediaPlayer.isPlaying()){
                         mediaPlayer.pause();
                         isPlaying = false;
+                        mHandler.removeMessages(MSG_UPDATE_PROGRESS);
                         videoPlayBtn.setVisibility(View.VISIBLE);
                         videoSeekBar.setVisibility(View.GONE);
                         videoBottomLayout.setVisibility(View.VISIBLE);

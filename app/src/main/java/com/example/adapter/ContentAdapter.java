@@ -19,15 +19,10 @@ import android.view.WindowManager;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import com.example.GlideApp;
 import com.example.jokeeassy.CommentActivity;
 import com.example.jokeeassy.R;
@@ -52,25 +47,26 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
     private List<Record> mRecordList;
     private Context mContext;
     private LayoutInflater mInflater;
-    private int mItemWidth;
-
-    private Point mScreenSize;
+    private int mMaxWidth;
 
     public ContentAdapter(Context context){
         mContext = context;
         mRecordList = new ArrayList<>();
         mInflater = LayoutInflater.from(mContext);
-        mScreenSize = new Point();
-        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-        wm.getDefaultDisplay().getSize(mScreenSize);
     }
 
-    public void addRecords(List<Record> recordList){
-        //if(mRecordList.size() > 0) return;
+    public void setMaxWidth(int width){
+        mMaxWidth = width;
+    }
+
+    public void addRecords(boolean headInsert,List<Record> recordList){
         for(Record record : recordList){
             if(record.getGroup() != null){
-                mRecordList.add(0,record);
-                //break;
+                if(headInsert){
+                    mRecordList.add(0,record);
+                }else{
+                    mRecordList.add(record);
+                }
             }else{
                 Log.d(TAG,"监测到空Group");
             }
@@ -80,7 +76,6 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
 
     @Override
     public RecordHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        mItemWidth = parent.getWidth();
         View itemView = mInflater.inflate(R.layout.item_content,parent,false);
         RecordHolder holder = new RecordHolder(itemView);
         return holder;
@@ -145,15 +140,16 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
             holder.largeImage.setVisibility(View.VISIBLE);
             holder.largeImage.setScaleType(ImageView.ScaleType.CENTER);
 
-            int width = mScreenSize.x;
-            int height = (int)(imageBean.getHeight() * (float)mScreenSize.x / imageBean.getWidth());
-
-            ViewGroup.LayoutParams params = holder.largeImage.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)holder.largeImage.getLayoutParams();
+            int width = mMaxWidth - params.getMarginStart() - params.getMarginEnd();
+            int height = (int)(imageBean.getHeight() * (float)width / (float)imageBean.getWidth());
             params.width = width;
             params.height = height;
             holder.largeImage.setLayoutParams(params);
 
-            GlideApp.with(mContext).load(url)
+            Log.d(TAG,"加载大图：" + url);
+            GlideApp.with(mContext)
+                    .load(url)
                     .placeholder(R.drawable.large_loading)
                     .override(width,height)
                     .centerCrop()
@@ -168,13 +164,14 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
     private void bindThumbImgList(RecordHolder holder, Group group) {
         //多张缩略图
         if(group.getThumbImageList() != null){
-            Log.d(TAG,"多张缩略图");
             holder.thumbParentLayout.setVisibility(View.VISIBLE);
             List<ImageBean> thumbImageList = group.getThumbImageList();
             assert  thumbImageList.size() <= 9;
+            Log.d(TAG,"加载缩略图，数量：" + thumbImageList.size());
             for(int j = 0; j < thumbImageList.size(); j++){
                 ImageBean imageBean = thumbImageList.get(j);
-
+                Log.d(TAG,"缩略图地址：" + imageBean.getUrl());
+                holder.thumbImageList[j].setVisibility(View.VISIBLE);
                 GlideApp.with(mContext)
                         .load(imageBean.getUrl())
                         .override(imageBean.getWidth(),imageBean.getHeight())
@@ -186,7 +183,6 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
             }
         }else{
             holder.thumbParentLayout.setVisibility(View.GONE);
-
         }
     }
 
@@ -197,6 +193,7 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
 
             String captureImageUrl = group.getLargeCover().getUrlList().get(0).getUrl();
             playerView.setVideoUri(group.getMp4Url());
+            Log.d(TAG,String.format("加载视频,封面地址：%s\n视频地址：%s",captureImageUrl,group.getMp4Url()));
 
             SpannableString spanStr = Utils.makeColorSpan(
                     new String[]{group.getPlayCount()+"","次播放"},
@@ -204,31 +201,29 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
             playerView.setLeftBottomText(spanStr);
             playerView.setRightBottomText(DateUtils.secondToDuration((int)group.getDuration()));
 
-            int width = mScreenSize.x;
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)playerView.getLayoutParams();
+            int width = mMaxWidth - params.getMarginStart() - params.getMarginEnd();
             int height = (int)(group.getVideoHeight() * (float)width / group.getVideoWidth());
-            ViewGroup.LayoutParams params = playerView.getLayoutParams();
+
             params.width = width;
             params.height = height;
             playerView.setLayoutParams(params);
 
-            params = playerView.getCaptureImage().getLayoutParams();
+            params = (RelativeLayout.LayoutParams)playerView.getCaptureImage().getLayoutParams();
             params.width = width;
             params.height = height;
+            playerView.getCaptureImage().setScaleType(ImageView.ScaleType.CENTER);
             playerView.getCaptureImage().setLayoutParams(params);
-            GlideApp.with(mContext).
-                    load(captureImageUrl)
+            GlideApp.with(mContext)
+                    .load(captureImageUrl)
+                    .placeholder(R.drawable.large_loading)
+                    .override(width,height)
                     .centerCrop()
                     .into(playerView.getCaptureImage());
 
-        }else{
+        } else {
             holder.playerView.setVisibility(View.GONE);
         }
-    }
-
-    private void loadResizableImage(final ImageView imageView,int placeholderResId, String url) {
-
-
-
     }
 
     @Override
@@ -265,16 +260,10 @@ public class ContentAdapter extends RecyclerView.Adapter<ContentAdapter.RecordHo
             categoryText = (TextView) itemView.findViewById(R.id.category_text);
             largeImage = (ImageView) itemView.findViewById(R.id.large_image);
             thumbParentLayout = (GridLayout) itemView.findViewById(R.id.thumb_image_list);
-            thumbImageList = new ImageView[9];
-            thumbImageList[0] = (ImageView) itemView.findViewById(R.id.thumb_image_1);
-            thumbImageList[1] = (ImageView) itemView.findViewById(R.id.thumb_image_2);
-            thumbImageList[2] = (ImageView) itemView.findViewById(R.id.thumb_image_3);
-            thumbImageList[3] = (ImageView) itemView.findViewById(R.id.thumb_image_4);
-            thumbImageList[4] = (ImageView) itemView.findViewById(R.id.thumb_image_5);
-            thumbImageList[5] = (ImageView) itemView.findViewById(R.id.thumb_image_6);
-            thumbImageList[6] = (ImageView) itemView.findViewById(R.id.thumb_image_7);
-            thumbImageList[7] = (ImageView) itemView.findViewById(R.id.thumb_image_8);
-            thumbImageList[8] = (ImageView) itemView.findViewById(R.id.thumb_image_9);
+            thumbImageList = new ImageView[thumbParentLayout.getChildCount()];
+            for(int i = 0; i < thumbParentLayout.getChildCount(); i++){
+                thumbImageList[i] = (ImageView) thumbParentLayout.getChildAt(i);
+            }
 
             playerView = (SurfaceVideoView) itemView.findViewById(R.id.player_view);
 
